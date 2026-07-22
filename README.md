@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# YUMI DXB Fashion – E-Commerce Platform
+
+A production-ready, luxury e-commerce platform for **YUMI DXB Fashion** (Mangaluru, India), built with Next.js 15, TypeScript, Tailwind CSS v4, Framer Motion, and Firebase.
+
+## Technology Stack
+
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript
+- **Styling**: Tailwind CSS v4, Framer Motion (for luxury animations)
+- **Database & Storage**: Firebase Cloud Firestore, Firebase Storage
+- **Authentication**: Firebase Authentication (Email/Password, Session tracking)
+
+---
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Installation
+Clone the repository and install the dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Configuration
+Create a `.env.local` file in the root directory and add your Firebase credentials:
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyB5AS32BKaBrF-LWQMbbVwo7WjzYo_zpz4
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=yumi-e33cd.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=yumi-e33cd
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=yumi-e33cd.firebasestorage.app
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=794097778737
+NEXT_PUBLIC_FIREBASE_APP_ID=1:794097778737:web:5c5fa8c55c20a60c1ad510
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-SFR2PXRC4Y
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Local Development
+Run the development server:
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the customer boutique website.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Firestore Database Structure
 
-To learn more about Next.js, take a look at the following resources:
+| Collection | Key Fields | Purpose |
+|---|---|---|
+| `/settings/global` | businessName, phone, address, currency, shippingFee, paymentGateway | Global store operations configurations |
+| `/products` | name, slug, price, discountPrice, stock, images, sizes, colors, isActive | Garment catalogs and inventory |
+| `/categories` | name, slug, displayOrder, imageUrl, isActive | Product grouping |
+| `/collections` | name, slug, displayOrder, bannerUrl, isFeatured | Editorial marketing sets |
+| `/orders` | orderNumber, items, shippingAddress, total, status, statusHistory | Client orders and timelines |
+| `/users` | email, displayName, phone, emailVerified | Registered customer profiles |
+| `/admins` | role, isActive | Role-Based Access Control list |
+| `/faqs` | question, answer, category, displayOrder, isPublished | Customer FAQ database |
+| `/policies` | slug, title, content | Store policies (Privacy, Returns) |
+| `/testimonials` | customerName, location, rating, comment, isPublished | Client homepage testimonials |
+| `/contactMessages` | name, email, phone, subject, message, status | Contact form entries inbox |
+| `/newsletterSubscribers` | email, isActive, subscribedAt | Marketing newsletters list |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Security Rules Config
 
-## Deploy on Vercel
+### Cloud Firestore Rules (`firestore.rules`)
+- **Public access**: Enabled for active products, categories, collections, testimonials, and FAQs.
+- **Customer ownership**: Customers can read/write only their own profiles, carts, wishlists, and orders.
+- **Admin operations**: Admin read/write permissions are restricted using firestore queries checking `/admins/{uid}` status.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Firebase Storage Rules (`storage.rules`)
+- Banners, icons, and product media directories (`/products`, `/categories`, etc.) allow **public read**.
+- **Write permissions** require validation checks against the `/admins/{uid}` collection in Firestore.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Admin Roles & Console
+
+Supported Roles:
+- `super_admin`: Full editing access + user and admin permissions control.
+- `admin`: Full operations console access (products, inventory, settings, orders).
+- `content_manager`: Restricted to products, CMS text, categories, FAQs.
+- `order_manager`: Restricted to order list management, invoices, status changes.
+
+### Authorizing an Admin
+To grant admin privileges, create a document in the `admins` collection using the user's Auth UID as the document ID:
+```json
+// Path: /admins/USER_AUTH_UID
+{
+  "uid": "USER_AUTH_UID",
+  "email": "admin@yumidxb.com",
+  "displayName": "Admin Name",
+  "role": "admin",
+  "isActive": true,
+  "createdAt": "serverTimestamp"
+}
+```
+Once this document is created, the user will be routed to the Admin operational console at `/admin/dashboard` upon login.

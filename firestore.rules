@@ -1,0 +1,171 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ─── Helper Functions ───────────────────────────────────────────────────
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if the current user has admin status in the 'admins' collection
+    function getAdminData() {
+      return get(/databases/$(database)/documents/admins/$(request.auth.uid)).data;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid)) && 
+        getAdminData().isActive == true;
+    }
+    
+    function isSuperAdmin() {
+      return isAdmin() && getAdminData().role == 'super_admin';
+    }
+    
+    function isContentManager() {
+      return isAdmin() && (getAdminData().role == 'super_admin' || getAdminData().role == 'admin' || getAdminData().role == 'content_manager');
+    }
+    
+    function isOrderManager() {
+      return isAdmin() && (getAdminData().role == 'super_admin' || getAdminData().role == 'admin' || getAdminData().role == 'order_manager');
+    }
+
+    // ─── Rules by Collection ─────────────────────────────────────────────────
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Addresses Subcollection (or root collection)
+    match /addresses/{addressId} {
+      allow read, write: if isAuthenticated() && (resource == null || resource.data.userId == request.auth.uid) || isAdmin();
+    }
+
+    // Products Collection
+    match /products/{productId} {
+      allow read: if resource == null || resource.data.isArchived == false || isAdmin();
+      allow write: if isContentManager();
+    }
+
+    // Categories Collection
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // Collections Collection
+    match /collections/{collectionId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      allow read: if isAuthenticated() && (resource.data.userId == request.auth.uid || isOrderManager());
+      allow create: if isAuthenticated();
+      allow update: if isOrderManager();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Cart Collection
+    match /cart/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Wishlist Collection
+    match /wishlist/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Homepage CMS
+    match /homepage/{documentId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // About CMS
+    match /about/{documentId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // FAQ Collection
+    match /faqs/{faqId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // Policies Collection
+    match /policies/{policyId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // Testimonials Collection
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+
+    // Global Settings
+    match /settings/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Newsletter Subscribers
+    match /newsletterSubscribers/{subscriberId} {
+      allow read: if isAdmin();
+      allow create: if true; // anyone can subscribe
+      allow update, delete: if isAdmin();
+    }
+
+    // Contact Messages
+    match /contactMessages/{messageId} {
+      allow read: if isAdmin();
+      allow create: if true; // anyone can submit contact form
+      allow update, delete: if isAdmin();
+    }
+
+    // Admin Notifications
+    match /notifications/{notificationId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Product Reviews
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuthenticated(); // verified purchaser check is done on the client/backend function
+      allow update: if isAuthenticated() && resource.data.userId == request.auth.uid || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Inventory Log
+    match /inventory_log/{logId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Media Library metadata
+    match /media/{mediaId} {
+      allow read: if true;
+      allow write: if isContentManager();
+    }
+  }
+}

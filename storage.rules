@@ -1,0 +1,65 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper to check if user is logged in
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper to check if user is an admin by querying Firestore from Storage rules
+    function isAdmin() {
+      return isAuthenticated() && 
+        firestore.exists(/databases/(default)/documents/admins/$(request.auth.uid));
+    }
+
+    // Product Images
+    match /products/{allPaths=**} {
+      allow read: if true; // Publicly readable
+      allow write: if isAdmin(); // Admin only
+    }
+
+    // Category Images
+    match /categories/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Collection Images/Banners
+    match /collections/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Homepage CMS Images
+    match /homepage/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // About Page CMS Images
+    match /about/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Global Settings Images (Logo, Favicon)
+    match /settings/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Media Library Uploads
+    match /media/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User Uploads (e.g. Profile pictures)
+    match /users/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId || isAdmin();
+    }
+  }
+}
