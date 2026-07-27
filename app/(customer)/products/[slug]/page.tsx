@@ -26,6 +26,8 @@ import {
   CheckCircle,
   Star,
   Loader2,
+  ThumbsUp,
+  ThumbsDown,
 } from "lucide-react";
 
 export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -596,122 +598,161 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
         </section>
       )}
 
-      {/* ─── Customer Reviews Section ─── */}
-      <section className="space-y-8 pt-8 border-t border-charcoal/5">
-        <h2 className="font-heading text-2xl font-semibold text-charcoal">
-          Customer Reviews ({reviews.length})
-        </h2>
+      {/* ─── Flipkart-Style Ratings & Reviews Section ─── */}
+      <section id="reviews" className="space-y-8 pt-8 border-t border-charcoal/10">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-navy">
+              Ratings &amp; Reviews
+            </h2>
+            <p className="text-xs text-charcoal-muted font-light mt-0.5">
+              Verified authentic ratings and feedback from real buyers
+            </p>
+          </div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          
-          {/* Review Stats & Write Box */}
-          <div className="space-y-6">
-            <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft space-y-4">
-              <h3 className="font-body text-base font-semibold text-charcoal">
-                Overall Rating
-              </h3>
-              <div className="flex items-center gap-3">
-                <span className="text-4xl font-bold text-charcoal">
-                  {reviews.length > 0
-                    ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1)
-                    : "5.0"}
-                </span>
-                <div className="flex flex-col">
-                  <div className="flex text-blush gap-0.5">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-current" />
-                    ))}
-                  </div>
-                  <span className="text-xs text-charcoal-muted mt-1">Based on {reviews.length} reviews</span>
-                </div>
+        {/* Flipkart Ratings Breakdown Summary Card */}
+        <div className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 sm:p-8 shadow-soft grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
+          {/* Rating Badge & Totals */}
+          <div className="md:col-span-5 flex flex-col items-center md:items-start text-center md:text-left space-y-3 md:border-r border-charcoal/10 md:pr-8">
+            <div className="flex items-center gap-3">
+              <span className="bg-green-700 text-ivory text-3xl sm:text-4xl font-extrabold px-4 py-1.5 rounded-lg inline-flex items-center gap-1.5 shadow-sm">
+                <span>{reviews.length > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) : "5.0"}</span>
+                <Star className="w-6 h-6 fill-current text-ivory" />
+              </span>
+              <div className="flex flex-col">
+                <span className="text-sm font-bold text-navy">Verified Rating</span>
+                <span className="text-xs text-charcoal-muted">Overall Satisfaction</span>
               </div>
             </div>
+            <p className="text-xs font-medium text-charcoal-muted">
+              <strong className="text-navy">{reviews.length}</strong> {reviews.length === 1 ? "Rating & Review" : "Ratings & Reviews"}
+            </p>
+          </div>
 
-            {/* Write a review (Verified login & purchase required) */}
+          {/* Flipkart Star Progress Bars */}
+          <div className="md:col-span-7 space-y-2 max-w-sm mx-auto md:max-w-none w-full">
+            {[5, 4, 3, 2, 1].map((starNum) => {
+              const count = reviews.filter((r) => r.rating === starNum).length;
+              const percent = reviews.length > 0 ? (count / reviews.length) * 100 : starNum === 5 ? 100 : 0;
+              const barColor =
+                starNum >= 4 ? "bg-green-600" : starNum === 3 ? "bg-yellow-500" : "bg-red-500";
+
+              return (
+                <div key={starNum} className="flex items-center gap-3 text-xs">
+                  <span className="w-6 font-semibold text-charcoal flex items-center justify-end gap-0.5">
+                    {starNum} <Star className="w-3 h-3 fill-current text-charcoal/60" />
+                  </span>
+                  <div className="flex-1 h-2 bg-charcoal/10 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${barColor} transition-all duration-500`}
+                      style={{ width: `${percent}%` }}
+                    />
+                  </div>
+                  <span className="w-8 text-right font-medium text-charcoal-muted">{count}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Grid: Flipkart Rate Product Form (Left) & Verified Reviews List (Right) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          {/* Left Column: Flipkart Rate Product Box */}
+          <div className="lg:col-span-5 space-y-6">
             {checkingPurchaser ? (
-              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center py-8">
+              <div className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-blush mx-auto" />
-                <span className="text-xs text-charcoal-muted mt-2 block">Verifying purchase history...</span>
+                <span className="text-xs text-charcoal-muted mt-2 block font-medium">Verifying purchase status...</span>
               </div>
             ) : !user ? (
-              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
-                <div className="w-10 h-10 bg-blush-subtle rounded-full flex items-center justify-center mx-auto text-blush">
-                  <ShieldCheck className="w-5 h-5" />
+              <div className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft text-center space-y-4">
+                <div className="w-12 h-12 bg-blush-subtle rounded-full flex items-center justify-center mx-auto text-blush">
+                  <ShieldCheck className="w-6 h-6" />
                 </div>
-                <h4 className="font-heading font-semibold text-charcoal">Verified Purchasers Only</h4>
-                <p className="text-xs text-charcoal-muted font-light leading-relaxed">
-                  Only customers who have purchased and received this creation can submit a review.
-                </p>
+                <div className="space-y-1">
+                  <h4 className="font-heading text-lg font-semibold text-navy">Verified Purchasers Only</h4>
+                  <p className="text-xs text-charcoal-muted font-light leading-relaxed max-w-xs mx-auto">
+                    Only buyers who have received this creation can leave a review.
+                  </p>
+                </div>
                 <Link
                   href="/login"
-                  className="inline-block px-4 py-2 border border-navy text-navy hover:bg-navy/5 text-xs font-semibold uppercase tracking-wider rounded transition-all mt-1"
+                  className="inline-block w-full py-3 bg-navy text-ivory hover:bg-navy-light text-xs font-bold uppercase tracking-wider rounded-md transition-all shadow-navy"
                 >
-                  Sign In to Review
+                  Sign In to Rate &amp; Review
                 </Link>
               </div>
             ) : !canReview ? (
-              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
-                <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mx-auto text-yellow-800">
-                  <ShieldAlert className="w-5 h-5" />
+              <div className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft text-center space-y-4">
+                <div className="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center mx-auto text-yellow-800">
+                  <ShieldAlert className="w-6 h-6" />
                 </div>
-                <h4 className="font-heading font-semibold text-charcoal">Verified Purchase Required</h4>
-                <p className="text-xs text-charcoal-muted font-light leading-relaxed">
-                  You can submit a review once you have purchased this item and your order status is marked as <strong className="text-charcoal font-semibold">Delivered</strong>.
-                </p>
+                <div className="space-y-1">
+                  <h4 className="font-heading text-lg font-semibold text-navy">Verified Purchase Required</h4>
+                  <p className="text-xs text-charcoal-muted font-light leading-relaxed max-w-xs mx-auto">
+                    You can rate and review this item once your order has been placed and marked as <strong className="text-navy font-semibold">Delivered</strong>.
+                  </p>
+                </div>
               </div>
             ) : hasAlreadyReviewed ? (
-              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
-                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-700">
-                  <CheckCircle className="w-5 h-5" />
+              <div className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft text-center space-y-4">
+                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-700">
+                  <CheckCircle className="w-6 h-6" />
                 </div>
-                <h4 className="font-heading font-semibold text-charcoal">Verified Review Published</h4>
-                <p className="text-xs text-charcoal-muted font-light leading-relaxed">
-                  Thank you! Your verified buyer review is published live on this creation.
-                </p>
+                <div className="space-y-1">
+                  <h4 className="font-heading text-lg font-semibold text-navy">Verified Review Published</h4>
+                  <p className="text-xs text-charcoal-muted font-light leading-relaxed max-w-xs mx-auto">
+                    Thank you! Your verified purchaser rating &amp; review is live in our catalog.
+                  </p>
+                </div>
               </div>
             ) : (
-              <form onSubmit={handleReviewSubmit} className="space-y-4 bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-body text-base font-semibold text-charcoal">Write a review</h3>
+              <form onSubmit={handleReviewSubmit} className="space-y-4 bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft">
+                <div className="flex items-center justify-between border-b border-charcoal/10 pb-3">
+                  <h3 className="font-heading text-lg font-bold text-navy">Rate &amp; Review Product</h3>
                   <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
-                    <ShieldCheck className="w-3 h-3" />
+                    <ShieldCheck className="w-3 h-3 text-green-700" />
                     Verified Buyer
                   </span>
                 </div>
                 
-                {/* Rating */}
+                {/* Rating Selector */}
                 <div className="space-y-1">
-                  <span className="text-xs font-semibold text-charcoal-muted uppercase">Rating</span>
-                  <div className="flex gap-1.5 text-charcoal-subtle">
-                    {Array.from({ length: 5 }).map((_, idx) => {
-                      const ratingVal = idx + 1;
-                      return (
+                  <span className="text-xs font-bold text-charcoal uppercase tracking-wider">Select Rating</span>
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1 text-charcoal-subtle">
+                      {[1, 2, 3, 4, 5].map((ratingVal) => (
                         <button
-                          key={idx}
+                          key={ratingVal}
                           type="button"
                           onClick={() => setReviewRating(ratingVal)}
-                          className={`p-0.5 transition-colors ${
-                            ratingVal <= reviewRating ? "text-blush" : "text-charcoal-subtle hover:text-blush/60"
+                          className={`p-1 transition-transform hover:scale-110 ${
+                            ratingVal <= reviewRating ? "text-yellow-500" : "text-charcoal/20"
                           }`}
                         >
-                          <Star className="w-5 h-5 fill-current" />
+                          <Star className="w-6 h-6 fill-current" />
                         </button>
-                      );
-                    })}
+                      ))}
+                    </div>
+                    <span className="text-xs font-bold text-navy ml-2">
+                      {reviewRating === 5 ? "Excellent" : reviewRating === 4 ? "Very Good" : reviewRating === 3 ? "Good" : reviewRating === 2 ? "Fair" : "Poor"}
+                    </span>
                   </div>
                 </div>
 
                 {/* Comment */}
                 <div className="space-y-1">
-                  <label htmlFor="comment" className="text-xs font-semibold text-charcoal-muted uppercase">
-                    Your Review
+                  <label htmlFor="comment" className="text-xs font-bold text-charcoal uppercase tracking-wider">
+                    Write your review
                   </label>
                   <textarea
                     id="comment"
                     rows={4}
                     required
-                    className="w-full bg-transparent border border-charcoal/10 rounded-md p-3 text-sm focus:outline-none focus:border-blush text-charcoal placeholder-charcoal-subtle"
-                    placeholder="Tell us what you liked about this creation..."
+                    className="w-full bg-ivory border border-charcoal/15 rounded-md p-3 text-sm focus:outline-none focus:border-navy text-charcoal placeholder-charcoal-subtle"
+                    placeholder="What did you like or dislike about this product? Feel free to share sizing, comfort, and fabric feedback..."
                     value={reviewComment}
                     onChange={(e) => setReviewComment(e.target.value)}
                     disabled={submittingReview}
@@ -721,47 +762,71 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <button
                   type="submit"
                   disabled={submittingReview || !reviewComment}
-                  className="w-full py-2 bg-navy text-ivory hover:bg-navy-light text-xs font-semibold uppercase tracking-wider rounded transition-colors disabled:opacity-50 flex items-center justify-center"
+                  className="w-full py-3 bg-navy text-ivory hover:bg-navy-light text-xs font-bold uppercase tracking-wider rounded-md transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-navy"
                 >
-                  {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Review"}
+                  {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : "SUBMIT REVIEW"}
                 </button>
               </form>
             )}
           </div>
 
-          {/* Reviews List */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Right Column: Flipkart Review Cards List */}
+          <div className="lg:col-span-7 space-y-4">
             {reviews.length > 0 ? (
               reviews.map((review) => (
                 <div
                   key={review.id}
-                  className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft space-y-3"
+                  className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft space-y-3"
                 >
-                  <div className="flex justify-between items-center">
+                  {/* Flipkart Card Top Header: Green Star Badge */}
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-heading font-medium text-charcoal">{review.userName}</span>
-                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-[9px] font-bold px-2 py-0.5 rounded-full">
-                        <ShieldCheck className="w-3 h-3 text-green-600" />
-                        Verified Buyer
+                      <span className="bg-green-700 text-ivory text-xs font-extrabold px-2 py-0.5 rounded inline-flex items-center gap-0.5 shadow-sm">
+                        <span>{review.rating}</span>
+                        <Star className="w-3 h-3 fill-current text-ivory" />
+                      </span>
+                      <span className="font-semibold text-navy text-sm">
+                        {review.comment.length > 30 ? review.comment.slice(0, 30) + "..." : review.comment}
                       </span>
                     </div>
-                    <span className="text-[10px] text-charcoal-subtle">
-                      {review.createdAt ? new Date((review.createdAt as any).seconds * 1000).toLocaleDateString() : "Just now"}
-                    </span>
                   </div>
-                  <div className="flex gap-0.5 text-blush">
-                    {Array.from({ length: review.rating }).map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-current" />
-                    ))}
-                  </div>
-                  <p className="text-sm text-charcoal-muted leading-relaxed font-light italic">
-                    &ldquo;{review.comment}&rdquo;
+
+                  {/* Review Text Body */}
+                  <p className="text-sm text-charcoal font-normal leading-relaxed">
+                    {review.comment}
                   </p>
+
+                  {/* Flipkart Card Footer: Author Name, Verified Badge, Date & Helpful Buttons */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-charcoal/10 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-navy">{review.userName}</span>
+                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        <ShieldCheck className="w-3 h-3 text-green-700" />
+                        Verified Buyer
+                      </span>
+                      <span className="text-charcoal-subtle text-[10px]">
+                        {review.createdAt ? new Date((review.createdAt as any).seconds * 1000).toLocaleDateString() : "Just now"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-4 text-charcoal-muted">
+                      <button className="flex items-center gap-1 hover:text-navy transition-colors text-[11px]">
+                        <ThumbsUp className="w-3.5 h-3.5" />
+                        <span>0</span>
+                      </button>
+                      <button className="flex items-center gap-1 hover:text-navy transition-colors text-[11px]">
+                        <ThumbsDown className="w-3.5 h-3.5" />
+                        <span>0</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               ))
             ) : (
-              <div className="text-center py-12 bg-ivory-light border border-charcoal/5 rounded-xl shadow-soft text-charcoal-muted text-sm font-light">
-                There are no reviews for this product yet.
+              <div className="text-center py-16 bg-ivory-light border border-charcoal/10 rounded-2xl shadow-soft text-charcoal-muted space-y-2">
+                <Star className="w-8 h-8 text-charcoal/20 mx-auto" />
+                <p className="text-sm font-medium text-navy">No reviews for this product yet.</p>
+                <p className="text-xs font-light">Be the first verified purchaser to leave a rating!</p>
               </div>
             )}
           </div>
