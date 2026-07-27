@@ -73,8 +73,8 @@ export default function CheckoutPage() {
     }
   };
 
-  // Payment State
-  const [paymentMethod, setPaymentMethod] = useState("cod"); // Default COD
+  // Payment State (Default to Razorpay Online Payment)
+  const [paymentMethod, setPaymentMethod] = useState("online");
 
   // Fetch saved addresses if logged in
   useEffect(() => {
@@ -726,7 +726,7 @@ export default function CheckoutPage() {
                 className="w-full bg-navy text-ivory hover:bg-navy-light py-3.5 px-6 rounded-md font-semibold tracking-widest uppercase transition-colors text-center text-xs shadow-navy flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                <span>Place Order &ndash; {formatCurrency(total)}</span>
+                <span>{paymentMethod === "online" ? `Pay Now with Razorpay \u2013 ${formatCurrency(total)}` : `Place Order (COD) \u2013 ${formatCurrency(total)}`}</span>
               </button>
             </div>
           </div>
