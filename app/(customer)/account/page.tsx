@@ -25,6 +25,7 @@ import {
   Eye,
   Loader2,
   Check,
+  Star,
 } from "lucide-react";
 import Image from "next/image";
 import { Timestamp, doc } from "firebase/firestore";
@@ -895,15 +896,27 @@ export default function AccountPage() {
               <h4 className="text-xs font-semibold uppercase tracking-wider text-charcoal">Purchased Creations</h4>
               <div className="space-y-4">
                 {viewingOrder.items.map((item, idx) => (
-                  <div key={idx} className="flex items-center gap-4 text-xs">
-                    <div className="relative w-12 h-16 bg-charcoal/5 border border-charcoal/5 rounded overflow-hidden flex-shrink-0">
-                      <Image src={item.imageUrl} alt={item.productName} fill className="object-cover" />
+                  <div key={idx} className="flex items-center justify-between gap-4 text-xs">
+                    <div className="flex items-center gap-4">
+                      <div className="relative w-12 h-16 bg-charcoal/5 border border-charcoal/5 rounded overflow-hidden flex-shrink-0">
+                        <Image src={item.imageUrl} alt={item.productName} fill className="object-cover" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <p className="font-semibold text-charcoal text-sm">{item.productName}</p>
+                        <p className="text-charcoal-muted uppercase text-[10px]">Size: {item.size} | Color: {item.color} | Qty: {item.quantity}</p>
+                        <span className="font-semibold text-charcoal text-xs">{formatCurrency(item.subtotal)}</span>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-charcoal text-sm">{item.productName}</p>
-                      <p className="text-charcoal-muted uppercase text-[10px]">Size: {item.size} | Color: {item.color} | Qty: {item.quantity}</p>
-                    </div>
-                    <span className="font-semibold text-charcoal text-sm">{formatCurrency(item.subtotal)}</span>
+
+                    {viewingOrder.status === "delivered" && (
+                      <Link
+                        href={`/products/${item.productSlug}#reviews`}
+                        className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 bg-blush-subtle text-blush hover:bg-blush hover:text-ivory font-bold text-[10px] uppercase tracking-wider rounded border border-blush/30 transition-all shadow-soft"
+                      >
+                        <Star className="w-3 h-3 fill-current" />
+                        <span>Rate & Review</span>
+                      </Link>
+                    )}
                   </div>
                 ))}
               </div>

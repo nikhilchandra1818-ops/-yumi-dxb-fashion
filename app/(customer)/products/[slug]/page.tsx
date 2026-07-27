@@ -272,7 +272,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     }
   };
 
-  // Review submission (Verified Buyers Only)
+  // Review submission (Flipkart Style: Verified Buyers Auto-Publish Instant)
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -292,20 +292,33 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
     setSubmittingReview(true);
     try {
-      await createDocument("reviews", {
+      const newReviewData = {
         productId: product.id,
         userId: user.uid,
         userName: user.displayName || user.email?.split("@")[0] || "Customer",
         orderId: verifiedOrderId,
         rating: reviewRating,
         comment: reviewComment,
-        isApproved: false, // Sent to admin moderation
+        isApproved: true, // Flipkart style: Instant auto-publish for verified purchasers
         isHidden: false,
-      });
+      };
 
-      toast.success("Review submitted! It will appear live after admin moderation.");
+      const docRef = await createDocument("reviews", newReviewData);
+
+      toast.success("Thank you! Your verified rating & review has been published.");
       setReviewComment("");
       setHasAlreadyReviewed(true);
+
+      // Instantly update product reviews state live
+      setReviews((prev) => [
+        {
+          id: docRef.id,
+          ...newReviewData,
+          createdAt: { seconds: Math.floor(Date.now() / 1000) } as any,
+          updatedAt: { seconds: Math.floor(Date.now() / 1000) } as any,
+        },
+        ...prev,
+      ]);
     } catch (err) {
       console.error("Error submitting review:", err);
       toast.error("Failed to submit review.");
@@ -651,9 +664,9 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                 <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-700">
                   <CheckCircle className="w-5 h-5" />
                 </div>
-                <h4 className="font-heading font-semibold text-charcoal">Review Submitted</h4>
+                <h4 className="font-heading font-semibold text-charcoal">Verified Review Published</h4>
                 <p className="text-xs text-charcoal-muted font-light leading-relaxed">
-                  Thank you! You have already submitted a verified buyer review for this product. It is currently under moderation or published live.
+                  Thank you! Your verified buyer review is published live on this creation.
                 </p>
               </div>
             ) : (
