@@ -171,8 +171,128 @@ export default function CheckoutPage() {
     }
   };
 
-  // Atomic order placement via Firestore Transaction
+  // Load Razorpay Script dynamically
+  const loadRazorpayScript = () => {
+    return new Promise<boolean>((resolve) => {
+      if (typeof window !== "undefined" && (window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  // Atomic order placement via Firestore Transaction (COD & Online Razorpay)
   const handlePlaceOrder = async () => {
+    if (paymentMethod === "online") {
+      setLoading(true);
+      try {
+        const loaded = await loadRazorpayScript();
+        if (!loaded) {
+          toast.error("Failed to load Razorpay SDK. Please check your connection.");
+          setLoading(false);
+          return;
+        }
+
+        // 1. Create Razorpay order on backend
+        const createRes = await fetch("/api/payment/create-order", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            cartItems,
+            email,
+            shippingAddress: { fullName, phone, addressLine1, addressLine2, city, state, pincode, country: "India" },
+          }),
+        });
+
+        const createData = await createRes.json();
+        if (!createData.success) {
+          toast.error(createData.error || "Could not initiate payment.");
+          setLoading(false);
+          return;
+        }
+
+        // 2. Open Razorpay Modal
+        const options = {
+          key: createData.key,
+          amount: createData.amount,
+          currency: createData.currency,
+          name: "YUMI DXB Fashion",
+          description: `Order ${createData.orderNumber}`,
+          order_id: createData.order_id,
+          prefill: {
+            name: fullName,
+            email: email,
+            contact: phone,
+          },
+          theme: {
+            color: "#1B2A4A",
+          },
+          handler: async function (response: any) {
+            try {
+              const verifyRes = await fetch("/api/payment/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  orderNumber: createData.orderNumber,
+                  cartItems,
+                  shippingAddress: { fullName, phone, addressLine1, addressLine2, city, state, pincode, country: "India" },
+                  email,
+                  userPhone: phone,
+                  userName: fullName,
+                  userId: user?.uid || "guest",
+                  subtotal: cartSubtotal,
+                  shippingFee,
+                  total,
+                }),
+              });
+
+              const verifyData = await verifyRes.json();
+              if (verifyData.success) {
+                await clearCart();
+                setCreatedOrderNumber(createData.orderNumber);
+                setStep(3);
+                toast.success("Payment verified! Order confirmed.");
+              } else {
+                toast.error(verifyData.error || "Payment verification failed.");
+              }
+            } catch (err) {
+              console.error("Verification error:", err);
+              toast.error("Failed to verify payment. Please contact support.");
+            } finally {
+              setLoading(false);
+            }
+          },
+          modal: {
+            ondismiss: function () {
+              toast.error("Payment cancelled. Cart preserved.");
+              setLoading(false);
+            },
+          },
+        };
+
+        const rzp = new (window as any).Razorpay(options);
+        rzp.on("payment.failed", function (response: any) {
+          toast.error(`Payment Failed: ${response.error?.description || "Transaction declined"}`);
+          setLoading(false);
+        });
+        rzp.open();
+      } catch (err: any) {
+        console.error("Online payment error:", err);
+        toast.error("Error initiating online payment.");
+        setLoading(false);
+      }
+      return;
+    }
+
+    // Cash on Delivery (COD) Flow
     setLoading(true);
     const orderNum = generateOrderNumber();
 
@@ -202,7 +322,7 @@ export default function CheckoutPage() {
           });
         });
 
-        // 3. Create Order document in /orders (Wait! we can use standard document creation after transaction, but inside transaction is safer if we need atomic consistency)
+        // 3. Create Order document in /orders
         const orderRef = doc(db, "orders", orderNum);
         const orderData: Omit<Order, "id"> = {
           orderNumber: orderNum,
@@ -237,8 +357,8 @@ export default function CheckoutPage() {
           discount: 0,
           total,
           status: "pending",
-          statusHistory: [{ status: "pending", timestamp: Timestamp.now(), note: "Order placed successfully" }],
-          paymentMethod,
+          statusHistory: [{ status: "pending", timestamp: Timestamp.now(), note: "COD Order placed successfully" }],
+          paymentMethod: "cod",
           paymentStatus: "pending",
           createdAt: Timestamp.now(),
           updatedAt: Timestamp.now(),
@@ -265,7 +385,7 @@ export default function CheckoutPage() {
         const notifRef = doc(db, "notifications", `new_order_${orderNum}`);
         transaction.set(notifRef, {
           type: "new_order",
-          title: "New Order Placed",
+          title: "New Order Placed (COD)",
           body: `Order ${orderNum} for ${formatCurrency(total)} placed by ${fullName}`,
           link: `/admin/orders`,
           isRead: false,
@@ -566,18 +686,10 @@ export default function CheckoutPage() {
                 )}
               </button>
 
-              {/* Online Payment (Razorpay/Paytm - pluggable) */}
+              {/* Online Payment (Razorpay: UPI, Credit/Debit Cards, NetBanking) */}
               <button
-                onClick={() => {
-                  if (settings.paymentGateway) {
-                    setPaymentMethod("online");
-                  } else {
-                    toast.error("Online payment is currently unavailable. Please use COD.");
-                  }
-                }}
+                onClick={() => setPaymentMethod("online")}
                 className={`w-full flex items-center justify-between p-5 border rounded-xl text-left transition-all ${
-                  !settings.paymentGateway ? "opacity-50 cursor-not-allowed" : ""
-                } ${
                   paymentMethod === "online" ? "border-blush bg-blush-subtle/10" : "border-charcoal/10 hover:border-charcoal/30"
                 }`}
               >
@@ -586,9 +698,9 @@ export default function CheckoutPage() {
                     <CreditCard className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-charcoal">Online Payment (UPI, Cards, NetBanking)</h4>
+                    <h4 className="text-sm font-semibold text-charcoal">Online Payment (UPI, Cards, NetBanking, Wallets)</h4>
                     <p className="text-xs text-charcoal-muted mt-0.5">
-                      {!settings.paymentGateway ? "Coming soon. Fully configurable from Admin Panel." : `Pay securely using ${settings.paymentGateway}`}
+                      Fast &amp; 100% secure instant checkout powered by Razorpay.
                     </p>
                   </div>
                 </div>
