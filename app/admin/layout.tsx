@@ -66,9 +66,8 @@ export default function AdminLayout({
     { label: "Customers", href: "/admin/customers", icon: Users },
     { label: "Messages Inbox", href: "/admin/messages", icon: Mail },
     { label: "Newsletter List", href: "/admin/newsletter", icon: UserCheck },
-    { label: "FAQs Manager", href: "/admin/faqs", icon: HelpCircle },
+    {label: "FAQs Manager", href: "/admin/faqs", icon: HelpCircle },
     { label: "Policies Rich Text", href: "/admin/policies", icon: FileText },
-    { label: "Review Mod", href: "/admin/reviews", icon: Star },
     { label: "Site Settings", href: "/admin/settings", icon: Settings },
   ];
 

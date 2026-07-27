@@ -287,11 +287,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       return;
     }
 
-    if (hasAlreadyReviewed) {
-      toast.error("You have already submitted a review for this product.");
-      return;
-    }
-
     setSubmittingReview(true);
     try {
       const newReviewData = {
@@ -309,7 +304,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
 
       toast.success("Thank you! Your verified rating & review has been published.");
       setReviewComment("");
-      setHasAlreadyReviewed(true);
 
       // Instantly update product reviews state live
       setReviews((prev) => [
@@ -693,18 +687,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   <h4 className="font-heading text-lg font-semibold text-navy">Verified Purchase Required</h4>
                   <p className="text-xs text-charcoal-muted font-light leading-relaxed max-w-xs mx-auto">
                     You can rate and review this item once your order has been placed and marked as <strong className="text-navy font-semibold">Delivered</strong>.
-                  </p>
-                </div>
-              </div>
-            ) : hasAlreadyReviewed ? (
-              <div className="bg-ivory-light border border-charcoal/10 rounded-2xl p-6 shadow-soft text-center space-y-4">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-700">
-                  <CheckCircle className="w-6 h-6" />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-heading text-lg font-semibold text-navy">Verified Review Published</h4>
-                  <p className="text-xs text-charcoal-muted font-light leading-relaxed max-w-xs mx-auto">
-                    Thank you! Your verified purchaser rating &amp; review is live in our catalog.
                   </p>
                 </div>
               </div>
