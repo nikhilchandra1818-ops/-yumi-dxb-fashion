@@ -4,14 +4,14 @@ import React, { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getCollection, where, getDocument } from "@/lib/firebase/firestore";
+import { getCollection, where, getDocument, createDocument } from "@/lib/firebase/firestore";
 import { useCart } from "@/lib/context/CartContext";
 import { useWishlist } from "@/lib/context/WishlistContext";
 import { useAuth } from "@/lib/context/AuthContext";
 import { useSettings } from "@/lib/context/SettingsContext";
 import { ProductCard } from "@/components/customer/ProductCard";
 import { formatCurrency, getDiscountPercent } from "@/lib/utils";
-import { Product, Review } from "@/types";
+import { Product, Review, Order } from "@/types";
 import { toast } from "react-hot-toast";
 import {
   Heart,
@@ -22,6 +22,8 @@ import {
   RotateCcw,
   Sparkles,
   ShieldCheck,
+  ShieldAlert,
+  CheckCircle,
   Star,
   Loader2,
 } from "lucide-react";
@@ -49,10 +51,14 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
   const [addingToCart, setAddingToCart] = useState(false);
   const [buyingNow, setBuyingNow] = useState(false);
 
-  // Review Form
+  // Review Form & Verification State
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewComment, setReviewComment] = useState("");
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [canReview, setCanReview] = useState(false);
+  const [verifiedOrderId, setVerifiedOrderId] = useState<string | null>(null);
+  const [hasAlreadyReviewed, setHasAlreadyReviewed] = useState(false);
+  const [checkingPurchaser, setCheckingPurchaser] = useState(true);
 
   useEffect(() => {
     const fetchProductDetails = async () => {
@@ -102,6 +108,60 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       fetchProductDetails();
     }
   }, [slug, router]);
+
+  // Check if current user is a verified purchaser who has received this item (delivered)
+  useEffect(() => {
+    const verifyPurchaserStatus = async () => {
+      if (!user || !product) {
+        setCanReview(false);
+        setVerifiedOrderId(null);
+        setHasAlreadyReviewed(false);
+        setCheckingPurchaser(false);
+        return;
+      }
+
+      setCheckingPurchaser(true);
+      try {
+        // 1. Fetch user's delivered orders
+        const deliveredOrders = await getCollection<Order>("orders", [
+          where("userId", "==", user.uid),
+          where("status", "==", "delivered"),
+        ]);
+
+        const matchingOrder = deliveredOrders.find((ord) =>
+          ord.items.some((item) => item.productId === product.id)
+        );
+
+        if (matchingOrder) {
+          setCanReview(true);
+          setVerifiedOrderId(matchingOrder.id);
+        } else {
+          setCanReview(false);
+          setVerifiedOrderId(null);
+        }
+
+        // 2. Check if user already submitted a review for this product
+        const existingReviews = await getCollection<Review>("reviews", [
+          where("productId", "==", product.id),
+          where("userId", "==", user.uid),
+        ]);
+
+        if (existingReviews.length > 0) {
+          setHasAlreadyReviewed(true);
+        } else {
+          setHasAlreadyReviewed(false);
+        }
+      } catch (err) {
+        console.error("Error verifying purchaser status:", err);
+      } finally {
+        setCheckingPurchaser(false);
+      }
+    };
+
+    if (product) {
+      verifyPurchaserStatus();
+    }
+  }, [user, product]);
 
   if (loading || !product) {
     return (
@@ -212,7 +272,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     }
   };
 
-  // Review submission
+  // Review submission (Verified Buyers Only)
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
@@ -220,26 +280,34 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
       return;
     }
 
+    if (!canReview || !verifiedOrderId) {
+      toast.error("Only verified buyers who have received this creation can write a review.");
+      return;
+    }
+
+    if (hasAlreadyReviewed) {
+      toast.error("You have already submitted a review for this product.");
+      return;
+    }
+
     setSubmittingReview(true);
     try {
-      // In real production, check if order is verified, here we add it to the reviews moderator list
-      const reviewObj = {
+      await createDocument("reviews", {
         productId: product.id,
         userId: user.uid,
-        userName: user.displayName || "Customer",
+        userName: user.displayName || user.email?.split("@")[0] || "Customer",
+        orderId: verifiedOrderId,
         rating: reviewRating,
         comment: reviewComment,
-        isApproved: false, // Moderated
+        isApproved: false, // Sent to admin moderation
         isHidden: false,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      });
 
-      // In real-world, we would push to /reviews collection
-      // Mocking submission feedback
-      toast.success("Review submitted! It will appear after moderation.");
+      toast.success("Review submitted! It will appear live after admin moderation.");
       setReviewComment("");
+      setHasAlreadyReviewed(true);
     } catch (err) {
+      console.error("Error submitting review:", err);
       toast.error("Failed to submit review.");
     } finally {
       setSubmittingReview(false);
@@ -546,10 +614,57 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               </div>
             </div>
 
-            {/* Write a review (Verified login required) */}
-            {user ? (
+            {/* Write a review (Verified login & purchase required) */}
+            {checkingPurchaser ? (
+              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-blush mx-auto" />
+                <span className="text-xs text-charcoal-muted mt-2 block">Verifying purchase history...</span>
+              </div>
+            ) : !user ? (
+              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
+                <div className="w-10 h-10 bg-blush-subtle rounded-full flex items-center justify-center mx-auto text-blush">
+                  <ShieldCheck className="w-5 h-5" />
+                </div>
+                <h4 className="font-heading font-semibold text-charcoal">Verified Purchasers Only</h4>
+                <p className="text-xs text-charcoal-muted font-light leading-relaxed">
+                  Only customers who have purchased and received this creation can submit a review.
+                </p>
+                <Link
+                  href="/login"
+                  className="inline-block px-4 py-2 border border-navy text-navy hover:bg-navy/5 text-xs font-semibold uppercase tracking-wider rounded transition-all mt-1"
+                >
+                  Sign In to Review
+                </Link>
+              </div>
+            ) : !canReview ? (
+              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
+                <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center mx-auto text-yellow-800">
+                  <ShieldAlert className="w-5 h-5" />
+                </div>
+                <h4 className="font-heading font-semibold text-charcoal">Verified Purchase Required</h4>
+                <p className="text-xs text-charcoal-muted font-light leading-relaxed">
+                  You can submit a review once you have purchased this item and your order status is marked as <strong className="text-charcoal font-semibold">Delivered</strong>.
+                </p>
+              </div>
+            ) : hasAlreadyReviewed ? (
+              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mx-auto text-green-700">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <h4 className="font-heading font-semibold text-charcoal">Review Submitted</h4>
+                <p className="text-xs text-charcoal-muted font-light leading-relaxed">
+                  Thank you! You have already submitted a verified buyer review for this product. It is currently under moderation or published live.
+                </p>
+              </div>
+            ) : (
               <form onSubmit={handleReviewSubmit} className="space-y-4 bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft">
-                <h3 className="font-body text-base font-semibold text-charcoal">Write a review</h3>
+                <div className="flex items-center justify-between">
+                  <h3 className="font-body text-base font-semibold text-charcoal">Write a review</h3>
+                  <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                    <ShieldCheck className="w-3 h-3" />
+                    Verified Buyer
+                  </span>
+                </div>
                 
                 {/* Rating */}
                 <div className="space-y-1">
@@ -598,16 +713,6 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   {submittingReview ? <Loader2 className="w-4 h-4 animate-spin" /> : "Submit Review"}
                 </button>
               </form>
-            ) : (
-              <div className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft text-center space-y-3">
-                <p className="text-sm text-charcoal-muted">Only verified purchasers can submit reviews.</p>
-                <Link
-                  href="/login"
-                  className="inline-block px-4 py-2 border border-navy text-navy hover:bg-navy/5 text-xs font-semibold uppercase tracking-wider rounded transition-all"
-                >
-                  Login to Review
-                </Link>
-              </div>
             )}
           </div>
 
@@ -620,7 +725,13 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
                   className="bg-ivory-light border border-charcoal/5 rounded-xl p-6 shadow-soft space-y-3"
                 >
                   <div className="flex justify-between items-center">
-                    <span className="font-heading font-medium text-charcoal">{review.userName}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-heading font-medium text-charcoal">{review.userName}</span>
+                      <span className="inline-flex items-center gap-1 bg-green-100 text-green-800 text-[9px] font-bold px-2 py-0.5 rounded-full">
+                        <ShieldCheck className="w-3 h-3 text-green-600" />
+                        Verified Buyer
+                      </span>
+                    </div>
                     <span className="text-[10px] text-charcoal-subtle">
                       {review.createdAt ? new Date((review.createdAt as any).seconds * 1000).toLocaleDateString() : "Just now"}
                     </span>
