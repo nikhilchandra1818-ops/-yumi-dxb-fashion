@@ -156,7 +156,7 @@ export const Footer: React.FC = () => {
             <input
               type="email"
               placeholder="Your email address"
-              className="flex-1 bg-charcoal-light border border-ivory/10 px-4 py-2.5 text-sm text-ivory rounded focus:outline-none focus:border-blush placeholder-ivory-dark/40"
+              className="flex-1 bg-charcoal-light/80 border border-ivory/15 px-4 py-2.5 text-sm text-ivory rounded-md focus:outline-none focus:border-blush focus:ring-1 focus:ring-blush/30 placeholder-ivory-dark/40 transition-all duration-300"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={submitting}
@@ -164,7 +164,7 @@ export const Footer: React.FC = () => {
             />
             <button
               type="submit"
-              className="bg-blush hover:bg-blush-dark text-ivory px-4 rounded transition-colors flex items-center justify-center disabled:opacity-50"
+              className="bg-blush hover:bg-blush-dark text-ivory px-4 rounded-md transition-all duration-300 flex items-center justify-center disabled:opacity-50 active:scale-95 shadow-soft"
               disabled={submitting}
               aria-label="Subscribe"
             >

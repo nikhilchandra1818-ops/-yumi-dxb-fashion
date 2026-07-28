@@ -129,12 +129,12 @@ export default function HomePage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-start max-w-2xl text-left space-y-6">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
             className="space-y-4"
           >
-            <span className="text-xs uppercase tracking-widest text-blush font-bold bg-blush-subtle px-3.5 py-1.5 rounded-full inline-block">
+            <span className="text-xs uppercase tracking-widest text-blush font-bold bg-blush-subtle/80 px-4 py-1.5 rounded-full inline-block border border-blush/20 shadow-soft">
               ESTABLISHED 2024
             </span>
             <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-bold text-navy tracking-tight leading-none">
@@ -146,30 +146,30 @@ export default function HomePage() {
           </motion.div>
 
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
             className="text-base text-charcoal leading-relaxed font-normal max-w-lg"
           >
             {heroContent.subheading}
           </motion.p>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-wrap gap-4 pt-2 w-full sm:w-auto"
           >
             <Link
               href="/collections"
-              className="px-8 py-3.5 bg-navy text-ivory hover:bg-navy-light rounded-md text-sm font-semibold tracking-widest uppercase transition-all duration-300 shadow-navy flex items-center justify-center gap-2 group w-full sm:w-auto"
+              className="px-8 py-3.5 bg-navy text-ivory hover:bg-navy-light rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy flex items-center justify-center gap-2.5 group w-full sm:w-auto active:scale-[0.98]"
             >
               <span>{heroContent.primaryCta}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
             <Link
               href="/about"
-              className="px-8 py-3.5 bg-transparent border border-charcoal/20 text-charcoal hover:bg-charcoal/5 rounded-md text-sm font-semibold tracking-widest uppercase transition-all duration-300 flex items-center justify-center w-full sm:w-auto"
+              className="px-8 py-3.5 bg-transparent border border-charcoal/20 text-charcoal hover:bg-charcoal/5 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center w-full sm:w-auto active:scale-[0.98]"
             >
               {heroContent.secondaryCta}
             </Link>
@@ -179,8 +179,14 @@ export default function HomePage() {
 
       {/* ─── Story Preview Section ─── */}
       <section className="py-24 bg-ivory-light border-b border-charcoal/5">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          <div className="inline-flex items-center justify-center p-3 bg-blush-subtle/50 rounded-full text-blush mb-2">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8"
+        >
+          <div className="inline-flex items-center justify-center p-3.5 bg-blush-subtle/60 rounded-full text-blush mb-2 shadow-soft">
             <Heart className="w-6 h-6 fill-current" />
           </div>
           <h2 className="font-heading text-display-md text-charcoal font-semibold">
@@ -195,13 +201,13 @@ export default function HomePage() {
           <div className="pt-4">
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 text-sm font-semibold tracking-widest uppercase text-navy hover:text-blush transition-colors pb-1 border-b-2 border-navy hover:border-blush"
+              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-navy hover:text-blush transition-colors pb-1 border-b-2 border-navy hover:border-blush"
             >
               <span>{storyPreview.ctaLabel}</span>
               <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
-        </div>
+        </motion.div>
       </section>
 
       {/* ─── Featured Collections Section ─── */}

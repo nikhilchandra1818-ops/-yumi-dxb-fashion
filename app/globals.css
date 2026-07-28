@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Colors */
+  /* Brand Colors (Exact YUMI Palette) */
   --color-ivory: #F7F3EE;
   --color-ivory-light: #FDFCFA;
   --color-ivory-dark: #EDE4D8;
@@ -25,15 +25,15 @@
   --font-heading: var(--font-cormorant), Georgia, serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
 
-  /* Shadows */
-  --shadow-soft: 0 2px 20px rgba(0, 0, 0, 0.04);
-  --shadow-card: 0 4px 40px rgba(0, 0, 0, 0.06);
-  --shadow-elevated: 0 8px 60px rgba(0, 0, 0, 0.10);
-  --shadow-blush: 0 4px 30px rgba(201, 123, 123, 0.15);
-  --shadow-navy: 0 4px 30px rgba(31, 42, 68, 0.2);
+  /* Elevated Shadows */
+  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 8px 30px rgba(31, 42, 68, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-elevated: 0 16px 50px rgba(31, 42, 68, 0.10), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-blush: 0 8px 30px rgba(201, 123, 123, 0.20);
+  --shadow-navy: 0 8px 30px rgba(31, 42, 68, 0.25);
 
-  /* Transitions */
-  --transition-luxury: cubic-bezier(0.4, 0, 0.2, 1);
+  /* Cinematic Motion Easing */
+  --transition-luxury: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
@@ -54,7 +54,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Utilities & Premium Styles */
+/* Custom Utilities & Premium Micro-Interactions */
 .luxury-link {
   position: relative;
 }
@@ -64,8 +64,8 @@ body {
   position: absolute;
   width: 100%;
   transform: scaleX(0);
-  height: 1px;
-  bottom: -2px;
+  height: 1.5px;
+  bottom: -3px;
   left: 0;
   background-color: currentColor;
   transform-origin: bottom right;
@@ -78,10 +78,10 @@ body {
 }
 
 .glassmorphism {
-  background: rgba(247, 245, 242, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.05);
+  background: rgba(247, 243, 238, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -120,10 +120,10 @@ body {
   font-family: var(--font-body) !important;
 }
 
-/* Animations */
+/* Keyframe Animations */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideInRight {
@@ -132,9 +132,9 @@ body {
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-slide-in {
-  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }

@@ -83,10 +83,10 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-out ${
           isScrolled
-            ? "bg-ivory/95 backdrop-blur-md py-2 shadow-soft border-b border-charcoal/10"
-            : "bg-ivory/95 backdrop-blur-md py-3 border-b border-charcoal/10"
+            ? "glassmorphism py-2 shadow-soft"
+            : "bg-ivory/95 backdrop-blur-md py-3.5 border-b border-charcoal/10"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
@@ -94,7 +94,7 @@ export const Navbar: React.FC = () => {
           <div className="flex items-center md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-charcoal hover:text-blush transition-colors"
+              className="p-2 text-charcoal hover:text-blush transition-transform duration-300 active:scale-90"
               aria-label="Toggle mobile menu"
             >
               {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -102,7 +102,7 @@ export const Navbar: React.FC = () => {
           </div>
 
           {/* Left/Center: Logo */}
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0 transition-transform duration-300 hover:scale-[1.02]">
             <Logo size={isScrolled ? "sm" : "md"} variant="colored" />
           </div>
 
@@ -112,10 +112,10 @@ export const Navbar: React.FC = () => {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`font-body text-sm font-medium tracking-wider uppercase transition-colors luxury-link ${
+                className={`font-body text-xs font-semibold tracking-widest uppercase transition-all duration-300 luxury-link ${
                   pathname === link.href
-                    ? "text-blush"
-                    : "text-charcoal hover:text-blush"
+                    ? "text-blush font-bold"
+                    : "text-charcoal/80 hover:text-blush"
                 }`}
               >
                 {link.label}
@@ -124,7 +124,7 @@ export const Navbar: React.FC = () => {
             {isAdmin && (
               <Link
                 href="/admin/dashboard"
-                className="font-body text-sm font-semibold tracking-wider uppercase text-navy hover:text-navy-light transition-colors"
+                className="font-body text-xs font-bold tracking-widest uppercase text-navy hover:text-blush transition-colors px-3 py-1 bg-navy/5 hover:bg-navy/10 rounded-full border border-navy/20"
               >
                 Admin Panel
               </Link>
@@ -132,11 +132,11 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right: Actions */}
-          <div className="flex items-center space-x-2 sm:space-x-4">
+          <div className="flex items-center space-x-1 sm:space-x-3">
             {/* Search Icon */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2 text-charcoal hover:text-blush transition-colors"
+              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10"
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
@@ -145,7 +145,7 @@ export const Navbar: React.FC = () => {
             {/* Account Icon */}
             <Link
               href={user ? (isAdmin ? "/admin/dashboard" : "/account") : "/login"}
-              className="p-2 text-charcoal hover:text-blush transition-colors"
+              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10"
               aria-label="Account"
             >
               <UserIcon className="w-5 h-5" />
@@ -154,24 +154,24 @@ export const Navbar: React.FC = () => {
             {/* Wishlist Icon */}
             <Link
               href="/wishlist"
-              className="p-2 text-charcoal hover:text-blush transition-colors relative"
+              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10 relative"
               aria-label="Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlistItems.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-blush rounded-full ring-2 ring-ivory animate-pulse" />
+                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-blush rounded-full ring-2 ring-ivory animate-pulse" />
               )}
             </Link>
 
             {/* Cart Icon */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="p-2 text-charcoal hover:text-blush transition-colors relative"
+              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10 relative"
               aria-label="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
               {cartTotalItems > 0 && (
-                <span className="absolute top-0 right-0 w-4.5 h-4.5 bg-navy text-ivory text-[10px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 bg-navy text-ivory text-[10px] font-bold rounded-full flex items-center justify-center shadow-soft">
                   {cartTotalItems}
                 </span>
               )}

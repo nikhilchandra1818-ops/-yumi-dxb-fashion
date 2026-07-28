@@ -85,12 +85,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const discountPercent = hasDiscount ? getDiscountPercent(product.price, product.discountPrice!) : 0;
 
   return (
-    <div className="group relative flex flex-col bg-ivory-light border border-charcoal/5 rounded-lg overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1">
+    <div className="group relative flex flex-col bg-ivory-light border border-charcoal/10 hover:border-blush/40 rounded-xl overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 ease-out hover:-translate-y-1.5">
       {/* Product Image Section */}
       <Link href={`/products/${product.slug}`} className="relative aspect-3/4 w-full overflow-hidden bg-charcoal/5">
         {/* Discount Badge */}
         {hasDiscount && (
-          <span className="absolute top-4 left-4 z-10 bg-blush text-ivory text-xs font-semibold px-2.5 py-1 rounded-full shadow-soft tracking-wider">
+          <span className="absolute top-4 left-4 z-10 bg-blush text-ivory text-[11px] font-bold px-3 py-1 rounded-full shadow-soft tracking-widest uppercase border border-white/20">
             {discountPercent}% OFF
           </span>
         )}
@@ -98,10 +98,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         {/* Wishlist Button */}
         <button
           onClick={handleWishlistClick}
-          className={`absolute top-4 right-4 z-10 p-2.5 rounded-full border border-charcoal/5 transition-all duration-300 shadow-soft ${
+          className={`absolute top-4 right-4 z-10 p-2.5 rounded-full border transition-all duration-300 shadow-soft active:scale-75 ${
             isWishlisted
-              ? "bg-blush border-blush text-ivory"
-              : "bg-ivory/80 text-charcoal hover:bg-blush hover:text-ivory hover:border-blush"
+              ? "bg-blush border-blush text-ivory scale-110"
+              : "bg-ivory/90 border-charcoal/10 text-charcoal hover:bg-blush hover:text-ivory hover:border-blush"
           }`}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
@@ -114,7 +114,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           alt={product.name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-          className="object-cover transition-all duration-700 ease-out group-hover:scale-105"
+          className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.06]"
           priority={product.isFeatured}
         />
 
