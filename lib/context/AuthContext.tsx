@@ -50,12 +50,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 2. Fetch or create customer profile
       let userProfile = await getDocument<UserProfile>("users", currentUser.uid);
+      const effectiveName = currentUser.displayName && currentUser.displayName !== "Customer"
+        ? currentUser.displayName
+        : userProfile?.displayName && userProfile.displayName !== "Customer"
+        ? userProfile.displayName
+        : currentUser.email
+        ? currentUser.email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+        : "Customer";
+
       if (!userProfile) {
         // Create initial profile
         const newProfile: Omit<UserProfile, "id"> = {
           uid: currentUser.uid,
           email: currentUser.email || "",
-          displayName: currentUser.displayName || "Customer",
+          displayName: effectiveName,
           photoURL: currentUser.photoURL || null,
           emailVerified: currentUser.emailVerified,
           createdAt: Timestamp.now(),
@@ -63,6 +71,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         await setDocument("users", currentUser.uid, newProfile);
         userProfile = { id: currentUser.uid, ...newProfile };
+      } else if (userProfile.displayName === "Customer" && effectiveName !== "Customer") {
+        // Correct placeholder "Customer" with real name
+        await setDocument("users", currentUser.uid, { displayName: effectiveName }, true);
+        userProfile.displayName = effectiveName;
       } else if (userProfile.emailVerified !== currentUser.emailVerified) {
         // Update email verified status if it changed
         await setDocument("users", currentUser.uid, { emailVerified: currentUser.emailVerified }, true);

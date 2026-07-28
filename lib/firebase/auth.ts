@@ -12,6 +12,9 @@ import {
 } from "firebase/auth";
 import { auth } from "./config";
 
+import { setDocument } from "./firestore";
+import { Timestamp } from "firebase/firestore";
+
 export const registerUser = async (
   email: string,
   password: string,
@@ -19,6 +22,18 @@ export const registerUser = async (
 ) => {
   const credential = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(credential.user, { displayName });
+
+  // Save profile to Firestore immediately to prevent "Customer" placeholder
+  await setDocument("users", credential.user.uid, {
+    uid: credential.user.uid,
+    email: credential.user.email || email,
+    displayName: displayName,
+    photoURL: null,
+    emailVerified: credential.user.emailVerified,
+    createdAt: Timestamp.now(),
+    updatedAt: Timestamp.now(),
+  });
+
   await sendEmailVerification(credential.user);
   return credential.user;
 };

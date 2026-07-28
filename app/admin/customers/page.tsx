@@ -53,12 +53,33 @@ export default function AdminCustomersPage() {
     }
   };
 
-  const filteredCustomers = customers.filter(
-    (cust) =>
+  const getCustomerDisplayName = (cust: UserProfile) => {
+    if (cust.displayName && cust.displayName !== "Customer") {
+      return cust.displayName;
+    }
+    if (cust.email) {
+      const prefix = cust.email.split("@")[0].replace(/[0-9]/g, "");
+      if (prefix) {
+        return prefix
+          .replace(/[._]/g, " ")
+          .trim()
+          .split(/\s+/)
+          .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+          .join(" ");
+      }
+    }
+    return "Customer";
+  };
+
+  const filteredCustomers = customers.filter((cust) => {
+    const name = getCustomerDisplayName(cust);
+    return (
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cust.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cust.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       cust.phone?.includes(searchQuery)
-  );
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -111,32 +132,35 @@ export default function AdminCustomersPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-charcoal/5 text-sm">
-                    {filteredCustomers.map((cust) => (
-                      <tr key={cust.id} className="hover:bg-charcoal/[0.02] transition-colors cursor-pointer" onClick={() => handleInspectCustomer(cust)}>
-                        <td className="p-4 pl-6 flex items-center gap-3">
-                          <div className="w-9 h-9 bg-blush-subtle/50 text-blush rounded-full flex items-center justify-center font-bold text-xs uppercase">
-                            {cust.displayName.charAt(0)}
-                          </div>
-                          <div>
-                            <span className="font-semibold text-charcoal block">{cust.displayName}</span>
-                            <span className="text-[10px] text-charcoal-subtle block">{cust.email}</span>
-                          </div>
-                        </td>
-                        <td className="p-4 text-xs font-medium text-charcoal-muted">{formatDate(cust.createdAt)}</td>
-                        <td className="p-4 pr-6 text-right">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleInspectCustomer(cust);
-                            }}
-                            className="p-2 border border-charcoal/10 hover:border-navy text-navy rounded-full inline-flex items-center justify-center bg-transparent"
-                            title="Inspect Profile"
-                          >
-                            <Eye className="w-3.5 h-3.5" />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
+                    {filteredCustomers.map((cust) => {
+                      const displayName = getCustomerDisplayName(cust);
+                      return (
+                        <tr key={cust.id} className="hover:bg-charcoal/[0.02] transition-colors cursor-pointer" onClick={() => handleInspectCustomer(cust)}>
+                          <td className="p-4 pl-6 flex items-center gap-3">
+                            <div className="w-9 h-9 bg-blush-subtle/50 text-blush rounded-full flex items-center justify-center font-bold text-xs uppercase">
+                              {displayName.charAt(0)}
+                            </div>
+                            <div>
+                              <span className="font-semibold text-charcoal block">{displayName}</span>
+                              <span className="text-[10px] text-charcoal-subtle block">{cust.email}</span>
+                            </div>
+                          </td>
+                          <td className="p-4 text-xs font-medium text-charcoal-muted">{formatDate(cust.createdAt)}</td>
+                          <td className="p-4 pr-6 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleInspectCustomer(cust);
+                              }}
+                              className="p-2 border border-charcoal/10 hover:border-navy text-navy rounded-full inline-flex items-center justify-center bg-transparent"
+                              title="Inspect Profile"
+                            >
+                              <Eye className="w-3.5 h-3.5" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -151,10 +175,10 @@ export default function AdminCustomersPage() {
                 <div className="border-b border-charcoal/5 pb-4 space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 bg-blush-subtle/50 text-blush rounded-full flex items-center justify-center font-bold text-lg uppercase">
-                      {inspectingCustomer.displayName.charAt(0)}
+                      {getCustomerDisplayName(inspectingCustomer).charAt(0)}
                     </div>
                     <div>
-                      <h3 className="font-heading text-lg font-bold text-charcoal leading-tight">{inspectingCustomer.displayName}</h3>
+                      <h3 className="font-heading text-lg font-bold text-charcoal leading-tight">{getCustomerDisplayName(inspectingCustomer)}</h3>
                       <p className="text-[10px] text-charcoal-subtle font-mono mt-0.5">UID: {inspectingCustomer.uid}</p>
                     </div>
                   </div>
