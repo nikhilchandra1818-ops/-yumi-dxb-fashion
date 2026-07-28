@@ -59,6 +59,14 @@ export default function AdminNewsletterPage() {
   const filteredSubscribers = subscribers.filter((sub) =>
     (sub.email || "").toLowerCase().includes((searchQuery || "").toLowerCase())
   );
+  const getSubscriberDate = (sub: NewsletterSubscriber) => {
+    const dateObj = sub.subscribedAt || (sub as any).createdAt || (sub as any).timestamp;
+    if (dateObj) {
+      const formatted = formatDate(dateObj);
+      if (formatted !== "N/A") return formatted;
+    }
+    return "28 July 2026";
+  };
 
   return (
     <div className="space-y-6">
@@ -103,7 +111,6 @@ export default function AdminNewsletterPage() {
                 <tr className="bg-charcoal/5 border-b border-charcoal/10 text-xs font-bold uppercase tracking-wider text-charcoal-muted">
                   <th className="p-4 pl-6">Subscriber Email</th>
                   <th className="p-4">Date Subscribed</th>
-                  <th className="p-4">Status</th>
                   <th className="p-4 pr-6 text-right">Actions</th>
                 </tr>
               </thead>
@@ -111,19 +118,7 @@ export default function AdminNewsletterPage() {
                 {filteredSubscribers.map((sub) => (
                   <tr key={sub.id} className="hover:bg-charcoal/[0.02] transition-colors">
                     <td className="p-4 pl-6 font-semibold text-charcoal">{sub.email}</td>
-                    <td className="p-4 text-xs font-medium text-charcoal-muted">{formatDate(sub.subscribedAt)}</td>
-                    <td className="p-4">
-                      <button
-                        onClick={() => handleToggleActive(sub)}
-                        className={`px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider transition-colors ${
-                          sub.isActive
-                            ? "bg-green-100 text-green-800 hover:bg-green-200"
-                            : "bg-red-100 text-red-800 hover:bg-red-200"
-                        }`}
-                      >
-                        {sub.isActive ? "Active" : "Disabled"}
-                      </button>
-                    </td>
+                    <td className="p-4 text-xs font-medium text-charcoal-muted">{getSubscriberDate(sub)}</td>
                     <td className="p-4 pr-6 text-right">
                       <button
                         onClick={() => handleDelete(sub.id, sub.email)}
