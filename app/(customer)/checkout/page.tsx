@@ -216,48 +216,7 @@ export default function CheckoutPage() {
           return;
         }
 
-        // Demo Fallback: If placeholder keys are used without Razorpay live keys, verify test payment seamlessly
-        if (createData.isDemoFallback) {
-          try {
-            const verifyRes = await fetch("/api/payment/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: createData.order_id,
-                razorpay_payment_id: `pay_demo_${Math.random().toString(36).substring(2, 10)}`,
-                razorpay_signature: "bypass_test_signature",
-                orderNumber: createData.orderNumber,
-                cartItems,
-                shippingAddress: { fullName, phone, addressLine1, addressLine2, city, state, pincode, country: "India" },
-                email,
-                userPhone: phone,
-                userName: fullName,
-                userId: user?.uid || "guest",
-                subtotal: cartSubtotal,
-                shippingFee,
-                total,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-            if (verifyData.success) {
-              await clearCart();
-              setCreatedOrderNumber(createData.orderNumber);
-              setStep(3);
-              toast.success("Online Test Payment Completed! Order Confirmed.");
-            } else {
-              toast.error(verifyData.error || "Payment verification failed.");
-            }
-          } catch (err) {
-            console.error("Demo verification error:", err);
-            toast.error("Failed to verify demo payment.");
-          } finally {
-            setLoading(false);
-          }
-          return;
-        }
-
-        // 2. Open Razorpay Modal
+        // 2. Always Open Official Razorpay Checkout Modal
         const options = {
           key: createData.key,
           amount: createData.amount,
