@@ -114,7 +114,7 @@ export default function HomePage() {
               fill
               priority
               sizes="100vw"
-              className="object-cover object-center opacity-90"
+              className="object-cover object-top opacity-90"
             />
             {/* Soft balanced luxury overlay gradient */}
             <div className="absolute inset-0 bg-gradient-to-r from-ivory/85 via-ivory/55 to-transparent/10" />
