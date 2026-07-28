@@ -434,7 +434,25 @@ export default function CheckoutPage() {
         });
       });
 
-      // 6. Success: Clear Cart
+      // 6. Success: Send Email & Clear Cart
+      fetch("/api/mail/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "order_confirmation",
+          recipientEmail: email,
+          recipientName: fullName,
+          orderNumber: orderNum,
+          items: cartItems,
+          subtotal: cartSubtotal,
+          shippingFee,
+          total,
+          shippingAddress: { fullName, phone, addressLine1, addressLine2, city, state, pincode, country: "India" },
+          paymentMethod: "cod",
+          paymentStatus: "pending",
+        }),
+      }).catch((e) => console.warn("Async email send warning:", e));
+
       await clearCart();
       setCreatedOrderNumber(orderNum);
       setStep(3);

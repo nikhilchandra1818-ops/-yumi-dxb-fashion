@@ -44,6 +44,17 @@ export default function RegisterPage() {
       document.cookie = `yumi_session=${user.uid}; path=/; max-age=604800; SameSite=Lax${isProd ? "; Secure" : ""}`;
       document.cookie = `yumi_is_admin=false; path=/; max-age=604800; SameSite=Lax${isProd ? "; Secure" : ""}`;
 
+      // Send Welcome Email
+      fetch("/api/mail/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "welcome",
+          recipientEmail: email,
+          recipientName: name,
+        }),
+      }).catch((e) => console.warn("Welcome email trigger warning:", e));
+
       toast.success("Account created successfully! Verification email sent.");
       router.push("/account");
     } catch (error: any) {

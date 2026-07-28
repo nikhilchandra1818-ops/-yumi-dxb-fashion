@@ -4,7 +4,21 @@ import nodemailer from "nodemailer";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { type, recipientEmail, recipientName, orderNumber, items, total, shippingAddress, paymentMethod, paymentStatus, contactMessage } = body;
+    const {
+      type,
+      recipientEmail,
+      recipientName,
+      orderNumber,
+      items,
+      subtotal,
+      shippingFee,
+      total,
+      shippingAddress,
+      paymentMethod,
+      paymentStatus,
+      paymentReference,
+      contactMessage,
+    } = body;
 
     if (!type || !recipientEmail) {
       return NextResponse.json(
@@ -35,42 +49,136 @@ export async function POST(request: Request) {
     let subject = "";
     let htmlContent = "";
 
-    if (type === "order_confirmation") {
-      subject = `Order Confirmation #${orderNumber} – YUMI DXB Fashion`;
-      
+    // 1. WELCOME EMAIL (After Registration)
+    if (type === "welcome") {
+      subject = `Welcome to YUMI DXB Fashion, ${recipientName || "Valued Customer"}! ✨`;
+      htmlContent = `
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #F7F3EE; padding: 30px; color: #1A1A1A;">
+          <div style="text-align: center; padding-bottom: 24px; border-bottom: 1px solid rgba(26,26,26,0.1);">
+            <h1 style="font-family: Georgia, serif; color: #1F2A44; margin: 0; font-size: 30px;">YUMI DXB <span style="font-style: italic; color: #C97B7B;">Fashion</span></h1>
+            <p style="font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #6B6B6B; margin-top: 6px;">Where Comfort Meets Elegance</p>
+          </div>
+
+          <div style="background-color: #ffffff; padding: 28px; border-radius: 12px; margin-top: 24px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <h2 style="font-family: Georgia, serif; color: #1F2A44; margin-top: 0; font-size: 22px;">Welcome to our family, ${recipientName || "there"}!</h2>
+            <p style="font-size: 14px; color: #444444; line-height: 1.7;">
+              Thank you for registering an account with <strong>YUMI DXB Fashion</strong>. Founded by two sisters in Mangaluru, our atelier crafts every Kaftan, Abaya, Co-ord, and Nightwear set with love, hand-selected fabrics, and uncompromised comfort.
+            </p>
+            
+            <div style="margin: 24px 0; padding: 20px; background-color: #F7F3EE; border-radius: 8px; border-left: 4px solid #C97B7B;">
+              <h4 style="margin: 0 0 8px 0; color: #1F2A44; font-size: 14px;">What you can do with your account:</h4>
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #555555; line-height: 1.6;">
+                <li>Track live orders from our atelier to your doorstep.</li>
+                <li>Download official tax invoices for any purchase.</li>
+                <li>Save your delivery addresses for 1-click checkout.</li>
+                <li>Use your personal AI Style &amp; Drape Assistant.</li>
+              </ul>
+            </div>
+
+            <div style="text-align: center; margin-top: 28px;">
+              <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://yumi-dxb-fashion-ten.vercel.app"}/collections" 
+                 style="background-color: #1F2A44; color: #ffffff; text-decoration: none; padding: 12px 28px; border-radius: 6px; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; display: inline-block;">
+                Explore New Collection
+              </a>
+            </div>
+          </div>
+
+          <div style="text-align: center; padding-top: 24px; font-size: 11px; color: #888888; line-height: 1.5;">
+            <p>© ${new Date().getFullYear()} YUMI DXB Fashion. All rights reserved.<br/>Mangaluru, Karnataka, India | Contact: support@yumidxb.com</p>
+          </div>
+        </div>
+      `;
+    }
+    // 2. ORDER CONFIRMATION & EMBEDDED OFFICIAL TAX INVOICE
+    else if (type === "order_confirmation") {
+      subject = `Official Tax Invoice & Order Confirmation #${orderNumber} – YUMI DXB`;
+
+      const formattedDate = new Date().toLocaleDateString("en-IN", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+
       const itemsListHtml = (items || [])
         .map(
-          (item: any) => `
-          <tr>
-            <td style="padding: 12px; border-bottom: 1px solid #eeeeee;">
+          (item: any, idx: number) => `
+          <tr style="border-bottom: 1px solid #EEEEEE;">
+            <td style="padding: 12px 8px; text-align: center; color: #666666; font-size: 12px;">${idx + 1}</td>
+            <td style="padding: 12px 8px; font-size: 13px; color: #111111;">
               <strong>${item.productName}</strong><br/>
-              <span style="font-size: 12px; color: #666666;">Size: ${item.size} | Qty: ${item.quantity}</span>
+              <span style="font-size: 11px; color: #666666;">Size: ${item.size} | Color: ${item.color || "Default"}</span>
             </td>
-            <td style="padding: 12px; border-bottom: 1px solid #eeeeee; text-align: right;">
-              ₹${((item.discountPrice ?? item.price) * item.quantity).toLocaleString("en-IN")}
-            </td>
+            <td style="padding: 12px 8px; text-align: center; font-size: 13px; color: #111111;">${item.quantity}</td>
+            <td style="padding: 12px 8px; text-align: right; font-size: 13px; color: #111111;">₹${(item.discountPrice ?? item.price).toLocaleString("en-IN")}</td>
+            <td style="padding: 12px 8px; text-align: right; font-size: 13px; font-weight: bold; color: #1F2A44;">₹${((item.discountPrice ?? item.price) * item.quantity).toLocaleString("en-IN")}</td>
           </tr>`
         )
         .join("");
 
-      htmlContent = `
-        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #F7F3EE; padding: 24px; color: #1A1A1A;">
-          <div style="text-align: center; padding-bottom: 20px; border-bottom: 1px solid rgba(26,26,26,0.1);">
-            <h1 style="font-family: Georgia, serif; color: #1F2A44; margin: 0; font-size: 28px;">YUMI DXB <span style="font-style: italic; color: #C97B7B;">Fashion</span></h1>
-            <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #6B6B6B; margin-top: 4px;">Where Comfort Meets Elegance</p>
-          </div>
+      const addressText = shippingAddress
+        ? `${shippingAddress.fullName}<br/>${shippingAddress.addressLine1}${shippingAddress.addressLine2 ? `, ${shippingAddress.addressLine2}` : ""}<br/>${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.pincode}<br/>Phone: ${shippingAddress.phone}`
+        : "Standard Customer Shipping Address";
 
-          <div style="background-color: #ffffff; padding: 24px; border-radius: 8px; margin-top: 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.03);">
-            <h2 style="font-family: Georgia, serif; color: #1F2A44; margin-top: 0;">Thank you for your order, ${recipientName || "Valued Customer"}!</h2>
-            <p style="font-size: 14px; color: #444444; line-height: 1.6;">
-              We have received your order <strong>#${orderNumber}</strong>. Our artisans in Mangaluru are carefully preparing your creations.
+      htmlContent = `
+        <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 650px; margin: 0 auto; background-color: #F7F3EE; padding: 24px; color: #1A1A1A;">
+          
+          {/* Header */}
+          <div style="background-color: #ffffff; padding: 28px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px; border-bottom: 2px solid #1F2A44; padding-bottom: 16px;">
+              <tr>
+                <td style="vertical-align: top;">
+                  <h1 style="font-family: Georgia, serif; color: #1F2A44; margin: 0; font-size: 26px;">YUMI DXB <span style="font-style: italic; color: #C97B7B;">Fashion</span></h1>
+                  <p style="font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: #C97B7B; margin-top: 4px; font-weight: bold;">Where Comfort Meets Elegance</p>
+                  <p style="font-size: 11px; color: #666666; margin-top: 4px; line-height: 1.4;">
+                    Atelier Mangaluru, Karnataka, India<br/>Support: support@yumidxb.com
+                  </p>
+                </td>
+                <td style="text-align: right; vertical-align: top;">
+                  <h2 style="font-size: 20px; font-weight: bold; color: #1F2A44; margin: 0; text-transform: uppercase; letter-spacing: 1px;">TAX INVOICE</h2>
+                  <p style="font-size: 12px; color: #555555; margin-top: 6px; line-height: 1.5;">
+                    <strong>Invoice #:</strong> INV-${(orderNumber || "").replace(/[^0-9]/g, "")}<br/>
+                    <strong>Order #:</strong> ${orderNumber}<br/>
+                    <strong>Date:</strong> ${formattedDate}
+                  </p>
+                </td>
+              </tr>
+            </table>
+
+            {/* Greeting */}
+            <h3 style="font-family: Georgia, serif; color: #1F2A44; margin-top: 0;">Thank you for your order, ${recipientName || "Valued Customer"}!</h3>
+            <p style="font-size: 13px; color: #444444; line-height: 1.6;">
+              Your order <strong>#${orderNumber}</strong> has been confirmed! Below is your official tax invoice and order summary.
             </p>
 
-            <table style="width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px;">
+            {/* Billed To & Payment Info */}
+            <table style="width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px;">
+              <tr>
+                <td style="width: 48%; vertical-align: top; background: #F9FAFB; padding: 14px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                  <strong style="color: #1F2A44; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Billed &amp; Shipped To:</strong>
+                  <div style="color: #444444; line-height: 1.5;">${addressText}</div>
+                </td>
+                <td style="width: 4%;"></td>
+                <td style="width: 48%; vertical-align: top; background: #F9FAFB; padding: 14px; border-radius: 8px; border: 1px solid #E5E7EB;">
+                  <strong style="color: #1F2A44; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; display: block; margin-bottom: 6px;">Payment Summary:</strong>
+                  <div style="color: #444444; line-height: 1.5;">
+                    <strong>Method:</strong> ${paymentMethod === "online" ? "Online Payment (Razorpay)" : "Cash on Delivery (COD)"}<br/>
+                    <strong>Payment Status:</strong> <span style="background: #DEF7EC; color: #03543F; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: bold;">${(paymentStatus || "confirmed").toUpperCase()}</span><br/>
+                    ${paymentReference ? `<strong>Reference ID:</strong> ${paymentReference}<br/>` : ""}
+                    <strong>Delivery:</strong> 5-7 Business Days
+                  </div>
+                </td>
+              </tr>
+            </table>
+
+            {/* Itemized Invoice Table */}
+            <table style="width: 100%; border-collapse: collapse; margin-top: 24px; font-size: 13px;">
               <thead>
-                <tr style="background-color: #F7F3EE; text-align: left;">
-                  <th style="padding: 10px; font-size: 12px; text-transform: uppercase; color: #1F2A44;">Item</th>
-                  <th style="padding: 10px; font-size: 12px; text-transform: uppercase; color: #1F2A44; text-align: right;">Amount</th>
+                <tr style="background-color: #1F2A44; color: #ffffff; text-align: left;">
+                  <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; text-align: center;">#</th>
+                  <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase;">Item Description</th>
+                  <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; text-align: center;">Qty</th>
+                  <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; text-align: right;">Unit Price</th>
+                  <th style="padding: 10px 8px; font-size: 11px; text-transform: uppercase; text-align: right;">Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -78,18 +186,28 @@ export async function POST(request: Request) {
               </tbody>
             </table>
 
-            <div style="margin-top: 20px; padding-top: 15px; border-top: 2px solid #1F2A44; font-size: 16px; font-weight: bold; text-align: right; color: #1F2A44;">
-              Total Amount: ₹${Number(total || 0).toLocaleString("en-IN")}
-            </div>
+            {/* Total Calculation */}
+            <table style="width: 260px; margin-left: auto; border-collapse: collapse; margin-top: 16px; font-size: 13px;">
+              <tr>
+                <td style="padding: 6px 0; color: #666666;">Subtotal:</td>
+                <td style="padding: 6px 0; text-align: right; font-weight: bold; color: #111111;">₹${Number(subtotal || total || 0).toLocaleString("en-IN")}</td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 0; color: #666666;">Shipping Fee:</td>
+                <td style="padding: 6px 0; text-align: right; color: #111111;">${shippingFee === 0 ? "FREE" : `₹${Number(shippingFee || 0).toLocaleString("en-IN")}`}</td>
+              </tr>
+              <tr style="border-top: 2px solid #1F2A44; font-size: 16px; font-weight: bold;">
+                <td style="padding: 10px 0; color: #1F2A44;">Grand Total:</td>
+                <td style="padding: 10px 0; text-align: right; color: #1F2A44;">₹${Number(total || 0).toLocaleString("en-IN")}</td>
+              </tr>
+            </table>
 
-            <div style="margin-top: 24px; padding: 16px; background-color: #F7F3EE; border-radius: 6px; font-size: 13px; color: #555555;">
-              <strong style="color: #1F2A44;">Delivery Address:</strong><br/>
-              ${shippingAddress ? `${shippingAddress.fullName}, ${shippingAddress.addressLine1}, ${shippingAddress.city}, ${shippingAddress.state} - ${shippingAddress.pincode}` : "Standard Shipping"}<br/>
-              <strong>Payment Method:</strong> ${paymentMethod === "online" ? "Online Payment (Razorpay - PAID)" : "Cash on Delivery (COD)"}
+            <div style="margin-top: 28px; padding-top: 16px; border-top: 1px solid #EEEEEE; text-align: center; font-size: 12px; color: #777777;">
+              <p>You can also log into your <a href="${process.env.NEXT_PUBLIC_APP_URL || "https://yumi-dxb-fashion-ten.vercel.app"}/account" style="color: #C97B7B; font-weight: bold; text-decoration: underline;">Customer Account</a> anytime to view live delivery tracking or print PDF invoices.</p>
             </div>
           </div>
 
-          <div style="text-align: center; padding-top: 24px; font-size: 12px; color: #888888;">
+          <div style="text-align: center; padding-top: 20px; font-size: 11px; color: #888888;">
             <p>© ${new Date().getFullYear()} YUMI DXB Fashion. All rights reserved.<br/>Mangaluru, Karnataka, India</p>
           </div>
         </div>
