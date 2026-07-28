@@ -57,8 +57,13 @@ export async function POST(request: Request) {
     const keySecret = process.env.RAZORPAY_KEY_SECRET || "TestSecretKey1234567890";
 
     let razorpayOrder: any;
+    let isDemoFallback = false;
 
     try {
+      if (keyId === "rzp_test_YumiDxbFashion123" || keySecret === "TestSecretKey1234567890") {
+        throw new Error("Placeholder Razorpay API keys in use");
+      }
+
       const razorpay = new Razorpay({
         key_id: keyId,
         key_secret: keySecret,
@@ -77,7 +82,7 @@ export async function POST(request: Request) {
       razorpayOrder = await razorpay.orders.create(options);
     } catch (rzpError: any) {
       console.warn("Razorpay API order creation warning (using test fallback order):", rzpError?.message);
-      // Fallback test order structure if keys are placeholder test keys
+      isDemoFallback = true;
       razorpayOrder = {
         id: `order_${Math.random().toString(36).substring(2, 15)}`,
         amount: amountInPaise,
@@ -94,6 +99,7 @@ export async function POST(request: Request) {
       orderNumber,
       calculatedTotal: totalAmount,
       shippingFee,
+      isDemoFallback,
     });
   } catch (error: any) {
     console.error("Error creating Razorpay order:", error);
