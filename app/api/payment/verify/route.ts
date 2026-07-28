@@ -3,6 +3,7 @@ import crypto from "crypto";
 import { runTransaction, doc, db, getDocument } from "@/lib/firebase/firestore";
 import { Order, Product } from "@/types";
 import { Timestamp } from "firebase/firestore";
+import { sendTransactionalEmail } from "@/lib/utils/sendEmail";
 
 export async function POST(request: Request) {
   try {
@@ -171,25 +172,24 @@ export async function POST(request: Request) {
       });
     });
 
-    // Send email confirmation asynchronously
+    // Send email confirmation asynchronously with embedded tax invoice
     try {
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/mail/send`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type: "order_confirmation",
-          recipientEmail: email,
-          recipientName: userName || shippingAddress.fullName,
-          orderNumber,
-          items: cartItems,
-          total,
-          shippingAddress,
-          paymentMethod: "online",
-          paymentStatus: "paid",
-        }),
-      }).catch((e) => console.warn("Email send trigger warning:", e));
+      await sendTransactionalEmail({
+        type: "order_confirmation",
+        recipientEmail: email,
+        recipientName: userName || shippingAddress.fullName,
+        orderNumber,
+        items: cartItems,
+        subtotal,
+        shippingFee,
+        total,
+        shippingAddress,
+        paymentMethod: "online",
+        paymentStatus: "paid",
+        paymentReference: razorpay_payment_id,
+      });
     } catch (e) {
-      console.warn("Async email send warning:", e);
+      console.warn("Async order confirmation email send warning:", e);
     }
 
     return NextResponse.json({
