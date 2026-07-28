@@ -44,16 +44,32 @@ export function truncateText(text: string, maxLength: number): string {
 }
 
 export function formatDate(
-  date: Date | { toDate: () => Date } | string,
+  date?: any,
   options?: Intl.DateTimeFormatOptions
 ): string {
-  const d = date instanceof Date ? date : typeof date === "string" ? new Date(date) : date.toDate();
-  return d.toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    ...options,
-  });
+  if (!date) return "N/A";
+  try {
+    let d: Date;
+    if (date instanceof Date) {
+      d = date;
+    } else if (typeof date === "string" || typeof date === "number") {
+      d = new Date(date);
+    } else if (typeof date === "object" && typeof date.toDate === "function") {
+      d = date.toDate();
+    } else if (typeof date === "object" && typeof date.seconds === "number") {
+      d = new Date(date.seconds * 1000);
+    } else {
+      return "N/A";
+    }
+    return d.toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+      ...options,
+    });
+  } catch (e) {
+    return "N/A";
+  }
 }
 
 export function getDiscountPercent(

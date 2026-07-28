@@ -26,6 +26,7 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 );
 
 import { NewsletterSubscriber } from "@/types";
+import { Timestamp } from "firebase/firestore";
 
 export const Footer: React.FC = () => {
   const { settings } = useSettings();
@@ -59,6 +60,9 @@ export const Footer: React.FC = () => {
         await createDocument("newsletterSubscribers", {
           email: email.toLowerCase().trim(),
           isActive: true,
+          subscribedAt: Timestamp.now(),
+          createdAt: Timestamp.now(),
+          updatedAt: Timestamp.now(),
         });
         toast.success("Thank you for subscribing to our newsletter!");
         setEmail("");

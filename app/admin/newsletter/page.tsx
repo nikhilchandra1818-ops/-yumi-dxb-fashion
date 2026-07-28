@@ -57,7 +57,7 @@ export default function AdminNewsletterPage() {
   };
 
   const filteredSubscribers = subscribers.filter((sub) =>
-    sub.email.toLowerCase().includes(searchQuery.toLowerCase())
+    (sub.email || "").toLowerCase().includes((searchQuery || "").toLowerCase())
   );
 
   return (
