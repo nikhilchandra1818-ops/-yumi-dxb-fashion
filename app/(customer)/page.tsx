@@ -104,20 +104,21 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-ivory">
       {/* ─── Hero Section ─── */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-charcoal/5">
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden border-b border-charcoal/5">
         {/* Background Image Overlay */}
         {heroContent.imageUrl ? (
           <div className="absolute inset-0 z-0">
             <Image
               src={heroContent.imageUrl}
-              alt="YUMI DXB Fashion Hero"
+              alt="YUMI DXB Fashion Atelier Studio"
               fill
               priority
               sizes="100vw"
-              className="object-cover object-top opacity-90"
+              className="object-cover object-center scale-105 filter contrast-[1.05] brightness-[0.95]"
             />
-            {/* Soft balanced luxury overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-ivory/85 via-ivory/55 to-transparent/10" />
+            {/* Multi-stage luxury atelier blend gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-ivory/95 via-ivory/80 to-transparent/40 md:to-transparent/20" />
+            <div className="absolute inset-0 bg-gradient-to-t from-ivory via-transparent to-ivory/30" />
           </div>
         ) : (
           /* Premium luxury backdrop gradient when image is not yet uploaded */
@@ -127,20 +128,20 @@ export default function HomePage() {
           </div>
         )}
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-start max-w-2xl text-left space-y-6">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 flex flex-col items-start max-w-2xl text-left space-y-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="space-y-4"
           >
-            <span className="text-xs uppercase tracking-widest text-blush font-bold bg-blush-subtle px-3.5 py-1.5 rounded-full inline-block">
-              ESTABLISHED 2024
+            <span className="text-xs uppercase tracking-widest text-blush-dark font-bold bg-ivory/90 backdrop-blur-md border border-blush/20 px-4 py-1.5 rounded-full inline-block shadow-sm">
+              ESTABLISHED 2024 • MANGALURU ATELIER
             </span>
-            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-bold text-navy tracking-tight leading-none">
+            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-bold text-navy tracking-tight leading-none drop-shadow-sm">
               YUMI DXB <span className="font-light italic text-blush">Fashion</span>
             </h1>
-            <p className="font-heading text-2xl sm:text-3xl font-medium text-charcoal mt-3">
+            <p className="font-heading text-2xl sm:text-3xl font-semibold text-charcoal mt-3 drop-shadow-sm">
               {heroContent.headline}
             </p>
           </motion.div>
@@ -149,7 +150,7 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base text-charcoal leading-relaxed font-normal max-w-lg"
+            className="text-base text-charcoal-muted leading-relaxed font-medium max-w-lg bg-ivory/60 backdrop-blur-sm p-4 rounded-xl border border-charcoal/5 shadow-sm"
           >
             {heroContent.subheading}
           </motion.p>
