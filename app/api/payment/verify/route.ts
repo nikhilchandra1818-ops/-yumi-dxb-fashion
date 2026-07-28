@@ -161,6 +161,27 @@ export async function POST(request: Request) {
       });
     });
 
+    // Send email confirmation asynchronously
+    try {
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/mail/send`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "order_confirmation",
+          recipientEmail: email,
+          recipientName: userName || shippingAddress.fullName,
+          orderNumber,
+          items: cartItems,
+          total,
+          shippingAddress,
+          paymentMethod: "online",
+          paymentStatus: "paid",
+        }),
+      }).catch((e) => console.warn("Email send trigger warning:", e));
+    } catch (e) {
+      console.warn("Async email send warning:", e);
+    }
+
     return NextResponse.json({
       success: true,
       orderNumber,

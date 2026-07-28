@@ -16,6 +16,7 @@ import {
   Menu,
   X,
   ChevronDown,
+  Mic,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -56,6 +57,28 @@ export const Navbar: React.FC = () => {
     { label: "Contact", href: "/contact" },
     { label: "FAQ", href: "/faq" },
   ];
+
+  // Voice Search Handler
+  const [isListening, setIsListening] = useState(false);
+  const handleVoiceSearch = () => {
+    if (typeof window === "undefined") return;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert("Voice search is not supported in this browser.");
+      return;
+    }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.onstart = () => setIsListening(true);
+    recognition.onresult = (e: any) => {
+      const transcript = e.results[0][0].transcript;
+      setSearchQuery(transcript);
+      setIsListening(false);
+    };
+    recognition.onerror = () => setIsListening(false);
+    recognition.onend = () => setIsListening(false);
+    recognition.start();
+  };
 
   return (
     <>
@@ -175,12 +198,22 @@ export const Navbar: React.FC = () => {
                   <input
                     type="text"
                     name="q"
-                    placeholder="Search for kaftans, abayas, co-ords..."
+                    placeholder={isListening ? "Listening to your voice..." : "Search for kaftans, abayas, co-ords..."}
                     className="w-full bg-transparent border-0 outline-none text-charcoal placeholder-charcoal-subtle font-body text-base"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     autoFocus
                   />
+                  <button
+                    type="button"
+                    onClick={handleVoiceSearch}
+                    className={`p-1.5 rounded-full transition-all ${
+                      isListening ? "bg-red-500 text-white animate-pulse" : "text-charcoal-muted hover:text-blush"
+                    }`}
+                    title="Speak to Search"
+                  >
+                    <Mic className="w-4 h-4" />
+                  </button>
                 </form>
                 <button
                   onClick={() => setIsSearchOpen(false)}

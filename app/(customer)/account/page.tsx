@@ -26,9 +26,11 @@ import {
   Loader2,
   Check,
   Star,
+  FileText,
 } from "lucide-react";
 import Image from "next/image";
 import { Timestamp, doc } from "firebase/firestore";
+import { downloadInvoicePDF } from "@/lib/utils/generateInvoice";
 
 export default function AccountPage() {
   const { user, profile, refreshProfile } = useAuth();
@@ -877,17 +879,26 @@ export default function AccountPage() {
                 })}
               </div>
 
-              {/* Direct Atelier WhatsApp Tracking Trigger */}
-              <div className="flex items-center justify-between p-3.5 bg-blush-subtle/30 border border-blush/20 rounded-xl text-xs">
-                <span className="text-charcoal-muted">Need live updates from the Mangaluru Atelier?</span>
-                <a
-                  href={`https://wa.me/919876543210?text=Hi%20YUMI%20Atelier,%20I%20would%20like%20a%20live%20status%20update%20for%20my%20order%20${viewingOrder.orderNumber}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-3 py-1.5 bg-blush hover:bg-blush-dark text-ivory font-bold uppercase tracking-wider text-[10px] rounded transition-colors"
-                >
-                  WhatsApp Atelier
-                </a>
+              {/* Direct Atelier WhatsApp Tracking & Invoice Download */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-3.5 bg-blush-subtle/30 border border-blush/20 rounded-xl text-xs">
+                <span className="text-charcoal-muted">Need invoice or live updates from Atelier?</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => downloadInvoicePDF(viewingOrder)}
+                    className="px-3 py-1.5 bg-navy hover:bg-navy-light text-ivory font-bold uppercase tracking-wider text-[10px] rounded transition-colors flex items-center gap-1 shadow-navy"
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Download Invoice</span>
+                  </button>
+                  <a
+                    href={`https://wa.me/919876543210?text=Hi%20YUMI%20Atelier,%20I%20would%20like%20a%20live%20status%20update%20for%20my%20order%20${viewingOrder.orderNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3 py-1.5 bg-blush hover:bg-blush-dark text-ivory font-bold uppercase tracking-wider text-[10px] rounded transition-colors"
+                  >
+                    WhatsApp Atelier
+                  </a>
+                </div>
               </div>
             </div>
 

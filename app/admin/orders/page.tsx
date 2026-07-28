@@ -22,8 +22,9 @@ import {
   CreditCard,
   Check,
 } from "lucide-react";
-import Image from "next/image";
 import { Timestamp } from "firebase/firestore";
+import Image from "next/image";
+import { downloadInvoicePDF } from "@/lib/utils/generateInvoice";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -296,12 +297,21 @@ export default function AdminOrdersPage() {
                 <span className="text-[10px] uppercase font-bold tracking-widest text-blush">Order Inspection</span>
                 <h3 className="font-heading text-2xl font-bold text-charcoal mt-1">ID: {inspectingOrder.orderNumber}</h3>
               </div>
-              <button
-                onClick={() => setInspectingOrder(null)}
-                className="px-4 py-2 border border-charcoal/20 rounded hover:bg-charcoal/5 text-xs font-semibold uppercase tracking-wider cursor-pointer"
-              >
-                Close Inspector
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => downloadInvoicePDF(inspectingOrder)}
+                  className="px-4 py-2 bg-navy text-ivory hover:bg-navy-light rounded text-xs font-semibold uppercase tracking-wider transition-colors shadow-navy flex items-center gap-1.5"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Download Invoice</span>
+                </button>
+                <button
+                  onClick={() => setInspectingOrder(null)}
+                  className="px-4 py-2 border border-charcoal/20 rounded hover:bg-charcoal/5 text-xs font-semibold uppercase tracking-wider cursor-pointer"
+                >
+                  Close Inspector
+                </button>
+              </div>
             </div>
 
             {/* Quick Actions (Update Status) */}

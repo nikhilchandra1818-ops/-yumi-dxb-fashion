@@ -6,6 +6,7 @@ import { CartProvider } from "@/lib/context/CartContext";
 import { WishlistProvider } from "@/lib/context/WishlistContext";
 import { SettingsProvider } from "@/lib/context/SettingsContext";
 import { Toaster } from "react-hot-toast";
+import { ChatbotWidget } from "@/components/customer/ChatbotWidget";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -69,6 +70,7 @@ export default function RootLayout({
                   {children}
                   {modal}
                 </div>
+                <ChatbotWidget />
                 <Toaster
                   position="bottom-right"
                   toastOptions={{
