@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useSettings } from "@/lib/context/SettingsContext";
@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/customer/ProductCard";
 import { QuickViewModal } from "@/components/customer/QuickViewModal";
 import { getCollection, where, orderBy, getDocument } from "@/lib/firebase/firestore";
 import { Product, Category, Testimonial, HomepageCMS } from "@/types";
-import { motion, useScroll, useTransform, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Heart,
   ShieldCheck,
@@ -20,53 +20,6 @@ import {
   Quote,
 } from "lucide-react";
 
-/* ─── Animation Variants ─── */
-const fadeUp = {
-  hidden: { opacity: 0, y: 32 },
-  show: { opacity: 1, y: 0 },
-};
-
-const fadeIn = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1 },
-};
-
-const staggerChildren = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
-};
-
-const lineReveal = {
-  hidden: { scaleX: 0 },
-  show: { scaleX: 1 },
-};
-
-const TRANSITION_LUXURY = { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const };
-
-/* ─── Editorial Animated Heading ─── */
-function AnimatedHeading({
-  children,
-  className = "",
-  delay = 0,
-}: {
-  children: React.ReactNode;
-  className?: string;
-  delay?: number;
-}) {
-  return (
-    <motion.div
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1], delay }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 export default function HomePage() {
   const { settings } = useSettings();
   const [cms, setCms] = useState<HomepageCMS | null>(null);
@@ -74,28 +27,25 @@ export default function HomePage() {
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [heroImageLoaded, setHeroImageLoaded] = useState(false);
 
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
+  // 1. Fetch CMS content & categories & products & testimonials
   useEffect(() => {
     const fetchData = async () => {
       try {
+        // Fetch CMS Configuration
         const cmsData = await getDocument<HomepageCMS>("homepage", "cms");
-        if (cmsData) setCms(cmsData);
+        if (cmsData) {
+          setCms(cmsData);
+        }
 
+        // Fetch categories ordered by displayOrder
         const cats = await getCollection<Category>("categories", [
           where("isActive", "==", true),
           orderBy("displayOrder", "asc"),
         ]);
         setCategories(cats);
 
+        // Fetch featured products
         const products = await getCollection<Product>("products", [
           where("isActive", "==", true),
           where("isFeatured", "==", true),
@@ -103,6 +53,7 @@ export default function HomePage() {
         ]);
         setFeaturedProducts(products);
 
+        // Fetch testimonials
         const reviews = await getCollection<Testimonial>("testimonials", [
           where("isPublished", "==", true),
           orderBy("displayOrder", "asc"),
@@ -112,9 +63,11 @@ export default function HomePage() {
         console.error("Error fetching homepage data:", error);
       }
     };
+
     fetchData();
   }, []);
 
+  // Default values if CMS is not configured yet
   const heroContent = cms?.hero || {
     headline: "Where Comfort Meets Elegance.",
     subheading:
@@ -149,637 +102,279 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="min-h-screen" style={{ background: "#F8F4EE" }}>
-
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 01 — CINEMATIC HERO
-          Full-bleed image with parallax, editorial headline,
-          and ultra-minimal CTA treatment
-      ═══════════════════════════════════════════════════════════ */}
-      <section
-        ref={heroRef}
-        className="relative min-h-screen overflow-hidden"
-        style={{ background: "#1E2B52" }}
-      >
-        {/* Parallax background image */}
-        {heroContent.imageUrl && (
-          <motion.div
-            className="absolute inset-0 z-0"
-            style={{ y: heroImageY }}
-          >
+    <div className="min-h-screen bg-ivory">
+      {/* ─── Hero Section ─── */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden border-b border-charcoal/5">
+        {/* Background Image Overlay */}
+        {heroContent.imageUrl ? (
+          <div className="absolute inset-0 z-0">
             <Image
               src={heroContent.imageUrl}
-              alt="YUMI DXB Fashion"
+              alt="YUMI DXB Fashion Hero"
               fill
               priority
               sizes="100vw"
-              className="object-cover object-top"
-              onLoad={() => setHeroImageLoaded(true)}
+              className="object-cover object-top opacity-90"
             />
-            {/* Multi-layer editorial overlay */}
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(105deg, rgba(30,43,82,0.82) 0%, rgba(30,43,82,0.45) 45%, rgba(30,43,82,0.15) 100%)",
-              }}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to top, rgba(30,43,82,0.60) 0%, transparent 60%)",
-              }}
-            />
-          </motion.div>
+            {/* Soft balanced luxury overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-ivory/85 via-ivory/55 to-transparent/10" />
+          </div>
+        ) : (
+          /* Premium luxury backdrop gradient when image is not yet uploaded */
+          <div className="absolute inset-0 z-0 bg-gradient-to-br from-ivory-light via-ivory-dark to-blush-subtle/30 opacity-70">
+            <div className="absolute -top-40 -left-40 w-96 h-96 bg-blush-subtle/40 rounded-full blur-3xl" />
+            <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-navy-light/10 rounded-full blur-3xl" />
+          </div>
         )}
 
-        {/* Decorative top hairline */}
-        <motion.div
-          className="absolute top-0 left-0 right-0 h-px z-20"
-          style={{ background: "rgba(248,244,238,0.15)", transformOrigin: "left" }}
-          variants={lineReveal}
-          initial="hidden"
-          animate="show"
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        />
-
-        {/* Hero content — editorial left-aligned composition */}
-        <motion.div
-          className="relative z-10 min-h-screen flex flex-col justify-end pb-20 md:pb-28"
-          style={{ opacity: heroOpacity }}
-        >
-          <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 w-full">
-            {/* Top label — Juan Mora style "----subtitle" */}
-            <motion.div
-              variants={staggerChildren}
-              initial="hidden"
-              animate="show"
-              className="space-y-8 max-w-3xl"
-            >
-              <motion.div variants={fadeIn} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-4">
-                <div
-                  className="h-px w-10 flex-shrink-0"
-                  style={{ background: "#D89B9B" }}
-                />
-                <span
-                  className="editorial-label"
-                  style={{ color: "#D89B9B" }}
-                >
-                  est. 2024 · mangaluru, india
-                </span>
-              </motion.div>
-
-              {/* Massive editorial headline — Cormorant Garamond */}
-              <motion.h1
-                variants={fadeUp}
-                className="font-heading leading-[0.9] tracking-tight"
-                style={{
-                  fontSize: "clamp(3.5rem, 9vw, 8rem)",
-                  color: "#F8F4EE",
-                  fontWeight: 300,
-                }}
-              >
-                Where Comfort
-                <br />
-                <em style={{ color: "#D89B9B", fontStyle: "italic" }}>
-                  Meets Elegance
-                </em>
-              </motion.h1>
-
-              {/* Sub-headline */}
-              <motion.p
-                variants={fadeUp}
-                className="text-base leading-relaxed font-light max-w-lg"
-                style={{ color: "rgba(248,244,238,0.75)" }}
-              >
-                {heroContent.subheading}
-              </motion.p>
-
-              {/* CTA row — editorial treatment */}
-              <motion.div
-                variants={fadeUp}
-                className="flex flex-wrap items-center gap-6 pt-2"
-              >
-                <Link
-                  href="/collections"
-                  className="group inline-flex items-center gap-3"
-                  style={{ color: "#F8F4EE" }}
-                >
-                  <span
-                    className="px-7 py-3.5 text-xs font-bold tracking-[0.18em] uppercase transition-all duration-400 active:scale-95"
-                    style={{
-                      background: "#D89B9B",
-                      color: "#F8F4EE",
-                      borderRadius: "2px",
-                    }}
-                  >
-                    {heroContent.primaryCta}
-                  </span>
-                  <ArrowRight
-                    className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300"
-                    style={{ color: "#D89B9B" }}
-                  />
-                </Link>
-
-                <Link
-                  href="/about"
-                  className="link-reveal text-xs font-semibold tracking-[0.18em] uppercase transition-colors duration-300"
-                  style={{ color: "rgba(248,244,238,0.70)" }}
-                >
-                  {heroContent.secondaryCta}
-                </Link>
-              </motion.div>
-            </motion.div>
-
-            {/* Bottom scroll indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 0.6 }}
-              className="mt-16 flex items-center gap-3"
-            >
-              <div
-                className="h-px flex-1 max-w-12"
-                style={{ background: "rgba(248,244,238,0.25)" }}
-              />
-              <span
-                className="text-[10px] tracking-[0.2em] uppercase"
-                style={{ color: "rgba(248,244,238,0.35)" }}
-              >
-                scroll
-              </span>
-            </motion.div>
-          </div>
-        </motion.div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 02 — BRAND STORY (Editorial Split Layout)
-          Juan Mora's "label left / content right" composition
-      ═══════════════════════════════════════════════════════════ */}
-      <section
-        className="py-28 md:py-40"
-        style={{ background: "#F8F4EE" }}
-      >
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          {/* Hairline top */}
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-start max-w-2xl text-left space-y-6">
           <motion.div
-            className="hairline mb-16"
-            variants={lineReveal}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{ transformOrigin: "left" }}
-          />
-
-          {/* Two-column editorial split */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-start">
-            {/* Left: editorial label column */}
-            <AnimatedHeading className="lg:col-span-3" delay={0}>
-              <div className="lg:sticky lg:top-32 space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-px w-6" style={{ background: "#D89B9B" }} />
-                  <span className="editorial-label">our story</span>
-                </div>
-                <Heart
-                  className="w-6 h-6"
-                  style={{ color: "#D89B9B" }}
-                  fill="currentColor"
-                />
-              </div>
-            </AnimatedHeading>
-
-            {/* Right: main story content */}
-            <div className="lg:col-span-9 space-y-10">
-              <AnimatedHeading delay={0.1}>
-                <h2
-                  className="font-heading font-light leading-[1.1]"
-                  style={{
-                    fontSize: "clamp(2.2rem, 5vw, 4rem)",
-                    color: "#1E2B52",
-                  }}
-                >
-                  {storyPreview.heading}
-                </h2>
-              </AnimatedHeading>
-
-              <AnimatedHeading delay={0.2}>
-                <p
-                  className="font-heading text-xl md:text-2xl font-light italic leading-relaxed"
-                  style={{ color: "#4A4A4A" }}
-                >
-                  &ldquo;Would we proudly choose this for our own family?&rdquo;
-                </p>
-              </AnimatedHeading>
-
-              <AnimatedHeading delay={0.3}>
-                <p
-                  className="text-base leading-[1.9] font-light max-w-2xl"
-                  style={{ color: "#4A4A4A" }}
-                >
-                  {storyPreview.body}
-                </p>
-              </AnimatedHeading>
-
-              <AnimatedHeading delay={0.4}>
-                <Link
-                  href="/about"
-                  className="link-reveal inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] uppercase transition-colors duration-300"
-                  style={{ color: "#1E2B52" }}
-                >
-                  <span>{storyPreview.ctaLabel}</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </AnimatedHeading>
-            </div>
-          </div>
-
-          {/* Hairline bottom */}
-          <motion.div
-            className="hairline mt-16"
-            variants={lineReveal}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            style={{ transformOrigin: "right" }}
-          />
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 03 — FEATURED CATEGORIES
-          Editorial full-bleed category cards with cinematic hover
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-28 md:py-36" style={{ background: "#F3EEE7" }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          {/* Section header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-16">
-            <AnimatedHeading>
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-px w-6" style={{ background: "#D89B9B" }} />
-                  <span className="editorial-label">collections</span>
-                </div>
-                <h2
-                  className="font-heading font-light leading-tight"
-                  style={{
-                    fontSize: "clamp(2rem, 4vw, 3.5rem)",
-                    color: "#1E2B52",
-                  }}
-                >
-                  Featured Categories
-                </h2>
-              </div>
-            </AnimatedHeading>
-
-            <AnimatedHeading delay={0.1}>
-              <Link
-                href="/collections"
-                className="link-reveal inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] uppercase flex-shrink-0"
-                style={{ color: "#1E2B52" }}
-              >
-                <span>View All</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </AnimatedHeading>
-          </div>
-
-          {/* Category cards */}
-          {categories.length === 1 ? (
-            /* Single category — editorial split layout */
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 overflow-hidden"
-              style={{
-                borderRadius: "4px",
-                border: "1px solid #E6DED5",
-              }}
-            >
-              <div
-                className="p-10 md:p-16 flex flex-col justify-center space-y-8"
-                style={{ background: "#FFFFFF" }}
-              >
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <div className="h-px w-6" style={{ background: "#D89B9B" }} />
-                    <span className="editorial-label">debut collection</span>
-                  </div>
-                </div>
-                <h3
-                  className="font-heading font-light leading-tight"
-                  style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: "#1E2B52" }}
-                >
-                  {categories[0].name}
-                </h3>
-                <p
-                  className="text-sm leading-[1.9] font-light max-w-sm"
-                  style={{ color: "#4A4A4A" }}
-                >
-                  {categories[0].description ||
-                    "Indulge in our carefully selected premium comfort wear. Designed to bring ease, style, and absolute confidence to your daily life."}
-                </p>
-                <Link
-                  href={`/collections?c=${categories[0].slug}`}
-                  className="link-reveal self-start inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] uppercase"
-                  style={{ color: "#1E2B52" }}
-                >
-                  <span>Explore Collection</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-              <Link
-                href={`/collections?c=${categories[0].slug}`}
-                className="relative min-h-[420px] overflow-hidden group"
-              >
-                <Image
-                  src={categories[0].imageUrl || "/images/iris-garden-robe.jpg"}
-                  alt={categories[0].name}
-                  fill
-                  className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-              </Link>
-            </motion.div>
-          ) : categories.length > 1 ? (
-            /* Multiple categories — editorial asymmetric grid */
-            <motion.div
-              variants={staggerChildren}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-            >
-              {categories.map((category, idx) => (
-                <motion.div key={category.id} variants={fadeUp}>
-                  <Link
-                    href={`/collections?c=${category.slug}`}
-                    className="group block relative overflow-hidden"
-                    style={{
-                      aspectRatio: idx === 0 ? "3/4" : "4/5",
-                      borderRadius: "2px",
-                      border: "1px solid #E6DED5",
-                    }}
-                  >
-                    {category.imageUrl ? (
-                      <Image
-                        src={category.imageUrl}
-                        alt={category.name}
-                        fill
-                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                        className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.05]"
-                      />
-                    ) : (
-                      <div
-                        className="absolute inset-0"
-                        style={{ background: "linear-gradient(135deg, #EFE7DE, #FAF0F0)" }}
-                      />
-                    )}
-                    {/* Editorial bottom overlay */}
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(to top, rgba(30,43,82,0.72) 0%, rgba(30,43,82,0.1) 50%, transparent 100%)",
-                      }}
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 p-6">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div
-                          className="h-px w-4 transition-all duration-300 group-hover:w-8"
-                          style={{ background: "#D89B9B" }}
-                        />
-                        <span
-                          className="editorial-label"
-                          style={{ color: "#D89B9B" }}
-                        >
-                          collection
-                        </span>
-                      </div>
-                      <h3
-                        className="font-heading font-light text-xl tracking-wide"
-                        style={{ color: "#F8F4EE" }}
-                      >
-                        {category.name}
-                      </h3>
-                      <p
-                        className="text-xs tracking-[0.12em] uppercase mt-2 flex items-center gap-1.5 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-400"
-                        style={{ color: "rgba(248,244,238,0.7)" }}
-                      >
-                        <span>Explore</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </p>
-                    </div>
-                  </Link>
-                </motion.div>
-              ))}
-            </motion.div>
-          ) : (
-            /* Fallback */
-            <motion.div
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 overflow-hidden"
-              style={{ borderRadius: "4px", border: "1px solid #E6DED5" }}
-            >
-              <div
-                className="p-10 md:p-16 flex flex-col justify-center space-y-8"
-                style={{ background: "#FFFFFF" }}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-px w-6" style={{ background: "#D89B9B" }} />
-                  <span className="editorial-label">featured collection</span>
-                </div>
-                <h3
-                  className="font-heading font-light leading-tight"
-                  style={{ fontSize: "clamp(2rem, 4vw, 3rem)", color: "#1E2B52" }}
-                >
-                  Premium Floral Nightwear
-                </h3>
-                <p
-                  className="text-sm leading-[1.9] font-light"
-                  style={{ color: "#4A4A4A" }}
-                >
-                  Indulge in our carefully selected premium comfort wear. Designed to bring ease,
-                  style, and absolute confidence to your daily life.
-                </p>
-                <Link
-                  href="/collections?c=premium-floral-nightwear"
-                  className="link-reveal self-start inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] uppercase"
-                  style={{ color: "#1E2B52" }}
-                >
-                  <span>Explore Collection</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </Link>
-              </div>
-              <Link
-                href="/collections?c=premium-floral-nightwear"
-                className="relative min-h-[420px] overflow-hidden group"
-              >
-                <Image
-                  src="/images/iris-garden-robe.jpg"
-                  alt="Premium Floral Nightwear"
-                  fill
-                  className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.04]"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                  priority
-                />
-              </Link>
-            </motion.div>
-          )}
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════════════
-          SECTION 04 — BRAND VALUES (Juan Mora "Philosophy" style)
-          Editorial label-left, content-right three-column layout
-          with hairline dividers between each value
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-28 md:py-40" style={{ background: "#EFE7DE" }}>
-        <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-16">
-          {/* Section label */}
-          <motion.div
-            variants={fadeIn}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-16"
+            className="space-y-4"
           >
-            <div className="flex items-center gap-3 mb-6">
-              <div className="h-px w-6" style={{ background: "#D89B9B" }} />
-              <span className="editorial-label">why yumi</span>
-            </div>
-            <h2
-              className="font-heading font-light leading-tight"
-              style={{
-                fontSize: "clamp(2rem, 4vw, 3.5rem)",
-                color: "#1E2B52",
-                maxWidth: "32ch",
-              }}
-            >
-              Crafted with care,
-              <br />
-              <em style={{ color: "#D89B9B" }}>chosen with love</em>
-            </h2>
+            <span className="text-xs uppercase tracking-widest text-blush font-bold bg-blush-subtle/80 px-4 py-1.5 rounded-full inline-block border border-blush/20 shadow-soft">
+              ESTABLISHED 2024
+            </span>
+            <h1 className="font-heading text-5xl sm:text-6xl md:text-7xl font-bold text-navy tracking-tight leading-none">
+              YUMI DXB <span className="font-light italic text-blush">Fashion</span>
+            </h1>
+            <p className="font-heading text-2xl sm:text-3xl font-medium text-charcoal mt-3">
+              {heroContent.headline}
+            </p>
           </motion.div>
 
-          {/* Values — editorial "lines" with label/content split like Juan Mora's bio sections */}
-          <div className="space-y-0">
-            {brandValues.map((value, idx) => {
-              const Icon =
-                value.icon === "Sparkles"
-                  ? Sparkles
-                  : value.icon === "Award"
-                  ? Award
-                  : ShieldCheck;
-
-              return (
-                <motion.div
-                  key={idx}
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true, margin: "-60px" }}
-                  transition={{ delay: idx * 0.1 }}
-                >
-                  {/* Top hairline */}
-                  <div
-                    className="hairline"
-                    style={{
-                      background:
-                        "linear-gradient(to right, #E6DED5, rgba(230,222,213,0.3))",
-                    }}
-                  />
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 py-10 lg:py-14 group">
-                    {/* Left: Number + Icon */}
-                    <div className="lg:col-span-2 flex items-start gap-4">
-                      <span
-                        className="font-heading text-5xl font-light leading-none select-none"
-                        style={{ color: "#DCC8B5" }}
-                      >
-                        0{idx + 1}
-                      </span>
-                    </div>
-
-                    {/* Middle: Title */}
-                    <div className="lg:col-span-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <Icon
-                          className="w-4 h-4 flex-shrink-0"
-                          style={{ color: "#D89B9B" }}
-                          strokeWidth={1.5}
-                        />
-                      </div>
-                      <h3
-                        className="font-heading font-light text-2xl md:text-3xl"
-                        style={{ color: "#1E2B52" }}
-                      >
-                        {value.title}
-                      </h3>
-                    </div>
-
-                    {/* Right: Body text */}
-                    <div className="lg:col-span-6">
-                      <p
-                        className="text-sm leading-[1.9] font-light"
-                        style={{ color: "#4A4A4A" }}
-                      >
-                        {value.body}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-            {/* Final hairline */}
-            <div className="hairline" style={{ background: "rgba(230,222,213,0.6)" }} />
-          </div>
-
-          {/* Bottom CTA */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="mt-16 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6"
+          <motion.p
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+            className="text-base text-charcoal leading-relaxed font-normal max-w-lg"
           >
-            <p
-              className="font-heading text-lg font-light italic"
-              style={{ color: "#4A4A4A" }}
-            >
-              &ldquo;Every woman deserves to feel beautiful, confident, and comfortable.&rdquo;
-            </p>
+            {heroContent.subheading}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-wrap gap-4 pt-2 w-full sm:w-auto"
+          >
             <Link
               href="/collections"
-              className="group inline-flex items-center gap-3 flex-shrink-0"
+              className="px-8 py-3.5 bg-navy text-ivory hover:bg-navy-light rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy flex items-center justify-center gap-2.5 group w-full sm:w-auto active:scale-[0.98]"
             >
-              <span
-                className="px-7 py-3.5 text-xs font-bold tracking-[0.18em] uppercase transition-all duration-300 active:scale-95"
-                style={{
-                  background: "#1E2B52",
-                  color: "#F8F4EE",
-                  borderRadius: "2px",
-                }}
-              >
-                Shop Now
-              </span>
-              <ArrowRight
-                className="w-4 h-4 group-hover:translate-x-1.5 transition-transform duration-300"
-                style={{ color: "#1E2B52" }}
-              />
+              <span>{heroContent.primaryCta}</span>
+              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <Link
+              href="/about"
+              className="px-8 py-3.5 bg-transparent border border-charcoal/20 text-charcoal hover:bg-charcoal/5 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 flex items-center justify-center w-full sm:w-auto active:scale-[0.98]"
+            >
+              {heroContent.secondaryCta}
             </Link>
           </motion.div>
         </div>
       </section>
+
+      {/* ─── Story Preview Section ─── */}
+      <section className="py-24 bg-[#F3EEE7] border-b border-[#E6DED5]">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8"
+        >
+          <div className="inline-flex items-center justify-center p-3.5 bg-[#F8ECEC] rounded-full text-[#D89B9B] mb-2 shadow-soft">
+            <Heart className="w-6 h-6 fill-current" />
+          </div>
+          <h2 className="font-heading text-display-md text-[#1E2B52] font-semibold">
+            {storyPreview.heading}
+          </h2>
+          <p className="font-heading text-xl md:text-2xl font-light italic text-[#4A4A4A] max-w-2xl mx-auto leading-relaxed">
+            &ldquo;Would we proudly choose this for our own family?&rdquo;
+          </p>
+          <p className="text-base text-[#4A4A4A] leading-relaxed font-light max-w-3xl mx-auto">
+            {storyPreview.body}
+          </p>
+          <div className="pt-4">
+            <Link
+              href="/about"
+              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-[#1E2B52] hover:text-[#D89B9B] transition-colors pb-1 border-b-2 border-[#1E2B52] hover:border-[#D89B9B]"
+            >
+              <span>{storyPreview.ctaLabel}</span>
+              <ChevronRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* ─── Featured Collections Section ─── */}
+      <section className="py-24 bg-[#F8F4EE]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div className="space-y-2">
+              <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-semibold">
+                Our Showcase
+              </span>
+              <h2 className="font-heading text-display-md text-[#1E2B52] font-semibold">
+                Featured Categories
+              </h2>
+            </div>
+            <Link
+              href="/collections"
+              className="text-sm font-semibold tracking-wider uppercase text-[#1E2B52] hover:text-[#D89B9B] transition-colors flex items-center gap-1.5"
+            >
+              <span>Browse All Products</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {categories.length === 1 ? (
+            <div className="relative overflow-hidden rounded-2xl border border-[#E6DED5] shadow-soft bg-white grid grid-cols-1 md:grid-cols-2 min-h-[50vh]">
+              {/* Left Side: Editorial Description */}
+              <div className="p-8 md:p-16 flex flex-col justify-center space-y-6">
+                <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-bold bg-[#F8ECEC] px-3.5 py-1.5 rounded-full self-start border border-[#D89B9B]/20">
+                  Debut Collection
+                </span>
+                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1E2B52] leading-tight">
+                  {categories[0].name}
+                </h3>
+                <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
+                  {categories[0].description || "Indulge in our carefully selected premium comfort wear. Designed to bring ease, style, and absolute confidence to your daily life. Crafted with organic materials, beautiful floral motifs, and family integrity."}
+                </p>
+                <div>
+                  <Link
+                    href={`/collections?c=${categories[0].slug}`}
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1E2B52] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
+                  >
+                    <span>Explore Products</span>
+                    <ArrowRight className="w-4.5 h-4.5" />
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Right Side: Image */}
+              <Link href={`/collections?c=${categories[0].slug}`} className="relative h-64 md:h-full overflow-hidden group">
+                <Image
+                  src={categories[0].imageUrl || "/images/iris-garden-robe.jpg"}
+                  alt={categories[0].name}
+                  fill
+                  className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                />
+                <div className="absolute inset-0 bg-[#1E2B52]/5 group-hover:bg-[#1E2B52]/10 transition-colors" />
+              </Link>
+            </div>
+          ) : categories.length > 1 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {categories.map((category) => (
+                <Link
+                  key={category.id}
+                  href={`/collections?c=${category.slug}`}
+                  className="group relative aspect-[4/5] bg-white rounded-xl overflow-hidden border border-[#E6DED5] shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1.5"
+                >
+                  {category.imageUrl ? (
+                    <Image
+                      src={category.imageUrl}
+                      alt={category.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#EFE7DE] to-[#F8ECEC] flex flex-col items-center justify-center p-6 text-center" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1E2B52]/80 via-[#1E2B52]/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end text-white">
+                    <h3 className="font-heading text-xl font-medium tracking-wide">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs text-white/80 mt-1 flex items-center gap-1.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                      <span>Explore Collection</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            /* Fallback default categories when database is not set */
+            <div className="relative overflow-hidden rounded-2xl border border-[#E6DED5] shadow-soft bg-white grid grid-cols-1 md:grid-cols-2 min-h-[50vh]">
+              {/* Left Side: Editorial Description */}
+              <div className="p-8 md:p-16 flex flex-col justify-center space-y-6">
+                <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-bold bg-[#F8ECEC] px-3.5 py-1.5 rounded-full self-start border border-[#D89B9B]/20">
+                  Featured Collection
+                </span>
+                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1E2B52] leading-tight">
+                  Premium Floral Nightwear
+                </h3>
+                <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
+                  Indulge in our carefully selected premium comfort wear. Designed to bring ease, style, and absolute confidence to your daily life. Crafted with organic materials, beautiful floral motifs, and family integrity.
+                </p>
+                <div>
+                  <Link
+                    href="/collections?c=premium-floral-nightwear"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1E2B52] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
+                  >
+                    <span>Explore Collection</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+              
+              {/* Right Side: Image */}
+              <Link href="/collections?c=premium-floral-nightwear" className="relative h-64 md:h-full overflow-hidden group">
+                <Image
+                  src="/images/iris-garden-robe.jpg"
+                  alt="Premium Floral Nightwear"
+                  fill
+                  className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  priority
+                />
+                <div className="absolute inset-0 bg-[#1E2B52]/5 group-hover:bg-[#1E2B52]/10 transition-colors" />
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ─── Brand Values Section ─── */}
+      <section className="py-24 bg-[#EFE7DE] border-t border-[#E6DED5]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+          {brandValues.map((value, idx) => {
+            const Icon =
+              value.icon === "Sparkles"
+                ? Sparkles
+                : value.icon === "Award"
+                ? Award
+                : ShieldCheck;
+
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center text-center p-8 space-y-4 bg-white border border-[#E6DED5] rounded-2xl shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1"
+              >
+                <div className="p-4 bg-[#F8ECEC] rounded-full text-[#D89B9B] shadow-soft">
+                  <Icon className="w-6 h-6 stroke-[1.8]" />
+                </div>
+                <h3 className="font-heading text-xl font-medium text-[#1E2B52]">{value.title}</h3>
+                <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
+                  {value.body}
+                </p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
 
       {/* Quick View Modal */}
       {selectedProduct && (

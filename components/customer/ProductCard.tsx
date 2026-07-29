@@ -160,38 +160,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       </Link>
 
       {/* Info Section */}
-      <div className="p-5 flex-1 flex flex-col justify-between" style={{ background: "#FFFFFF" }}>
+      <div className="p-5 flex-1 flex flex-col justify-between">
         <div>
-          <span
-            className="text-[10px] uppercase tracking-[0.2em] font-semibold"
-            style={{ color: "#D89B9B" }}
-          >
+          <span className="text-[10px] uppercase tracking-widest text-blush font-semibold">
             {product.categoryName}
           </span>
-          <h3 className="font-heading text-lg font-light mt-1 line-clamp-1 transition-colors" style={{ color: "#1E2B52" }}>
+          <h3 className="font-heading text-lg font-medium text-charcoal mt-1 line-clamp-1 hover:text-blush transition-colors">
             <Link href={`/products/${product.slug}`}>{product.name}</Link>
           </h3>
-          <p className="text-xs mt-1 italic font-light truncate" style={{ color: "#7A7A7A" }}>
+          <p className="text-xs text-charcoal-muted mt-1 italic font-light truncate">
             Fabric: {product.fabric}
           </p>
         </div>
 
-        <div
-          className="flex items-center justify-between mt-4 pt-4"
-          style={{ borderTop: "1px solid #E6DED5" }}
-        >
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-charcoal/5">
           <div className="flex items-center gap-2">
             {hasDiscount ? (
               <>
-                <span className="text-base font-semibold" style={{ color: "#1E2B52" }}>
+                <span className="text-base font-semibold text-charcoal">
                   {formatCurrency(product.discountPrice!)}
                 </span>
-                <span className="text-sm line-through" style={{ color: "#7A7A7A" }}>
+                <span className="text-sm text-charcoal-subtle line-through">
                   {formatCurrency(product.price)}
                 </span>
               </>
             ) : (
-              <span className="text-base font-semibold" style={{ color: "#1E2B52" }}>
+              <span className="text-base font-semibold text-charcoal">
                 {formatCurrency(product.price)}
               </span>
             )}
@@ -199,8 +193,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           
           <Link
             href={`/products/${product.slug}`}
-            className="link-reveal text-xs uppercase tracking-[0.15em] font-semibold transition-colors"
-            style={{ color: "#1E2B52" }}
+            className="text-xs uppercase tracking-wider font-semibold text-navy hover:text-blush transition-colors"
           >
             Details
           </Link>
