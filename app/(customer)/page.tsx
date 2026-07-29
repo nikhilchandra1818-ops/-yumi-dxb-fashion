@@ -117,7 +117,7 @@ export default function HomePage() {
               className="object-cover object-top opacity-90"
             />
             {/* Soft balanced luxury overlay gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-ivory/85 via-ivory/55 to-transparent/10" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#F8F4EE]/45 via-[#F8F4EE]/20 to-transparent" />
           </div>
         ) : (
           /* Premium luxury backdrop gradient when image is not yet uploaded */
