@@ -1,52 +1,47 @@
 @import "tailwindcss";
 
 @theme {
-  /* Brand Colors (Exact YUMI Palette) */
-  --color-ivory: #F7F3EE;
-  --color-ivory-light: #FDFCFA;
-  --color-ivory-dark: #EDE4D8;
-  --color-ivory-deep: #DDD0BE;
+  /* Brand Palette (Exact Specs) */
+  --color-ivory: #F8F4EE;            /* Main Background */
+  --color-ivory-light: #F3EEE7;      /* Secondary Background */
+  --color-ivory-dark: #EFE7DE;       /* Section Background */
+  --color-card-bg: #FFFFFF;          /* Card Containers */
+  
+  --color-navy: #1E2B52;             /* Primary Text & Main Actions */
+  --color-charcoal: #1E2B52;         /* Primary Text */
+  --color-charcoal-muted: #4A4A4A;   /* Secondary Text */
+  --color-charcoal-subtle: #7A7A7A;  /* Subtle Muted Text */
 
-  --color-charcoal: #1A1A1A;
-  --color-charcoal-light: #3A3A3A;
-  --color-charcoal-muted: #6B6B6B;
-  --color-charcoal-subtle: #9B9B9B;
+  --color-blush: #D89B9B;            /* Accent Blush */
+  --color-blush-light: #E8B8B8;
+  --color-blush-dark: #B87B7B;
+  --color-blush-subtle: #F8ECEC;
 
-  --color-blush: #C97B7B;
-  --color-blush-light: #D99494;
-  --color-blush-dark: #A85F5F;
-  --color-blush-subtle: #F0DADA;
-
-  --color-navy: #1F2A44;
-  --color-navy-light: #2D3D60;
-  --color-navy-dark: #141C2E;
+  --color-beige: #DCC8B5;            /* Accent Beige */
+  --color-border-warm: #E6DED5;       /* Warm Borders */
 
   /* Fonts */
   --font-heading: var(--font-cormorant), Georgia, serif;
   --font-body: var(--font-inter), system-ui, sans-serif;
 
   /* Elevated Shadows */
-  --shadow-soft: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
-  --shadow-card: 0 8px 30px rgba(31, 42, 68, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
-  --shadow-elevated: 0 16px 50px rgba(31, 42, 68, 0.10), 0 4px 16px rgba(0, 0, 0, 0.04);
-  --shadow-blush: 0 8px 30px rgba(201, 123, 123, 0.20);
-  --shadow-navy: 0 8px 30px rgba(31, 42, 68, 0.25);
+  --shadow-soft: 0 4px 20px rgba(30, 43, 82, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-card: 0 8px 30px rgba(30, 43, 82, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-elevated: 0 16px 50px rgba(30, 43, 82, 0.10), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-blush: 0 8px 30px rgba(216, 155, 155, 0.25);
+  --shadow-navy: 0 8px 30px rgba(30, 43, 82, 0.25);
 
   /* Cinematic Motion Easing */
   --transition-luxury: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 :root {
-  --background: #F7F3EE;
-  --foreground: #1A1A1A;
+  --background: #F8F4EE;
+  --foreground: #1E2B52;
 }
 
 body {
   background-color: var(--background);
-  background-image: 
-    linear-gradient(90deg, rgba(26, 26, 26, 0.006) 50%, transparent 50%),
-    linear-gradient(rgba(26, 26, 26, 0.006) 50%, transparent 50%);
-  background-size: 4px 4px;
   color: var(--foreground);
   font-family: var(--font-body);
   overflow-x: hidden;
@@ -78,10 +73,10 @@ body {
 }
 
 .glassmorphism {
-  background: rgba(247, 243, 238, 0.88);
+  background: rgba(248, 244, 238, 0.90);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+  border-bottom: 1px solid #E6DED5;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -99,22 +94,22 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #F7F3EE;
+  background: #F8F4EE;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C97B7B;
+  background: #D89B9B;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #A85F5F;
+  background: #B87B7B;
 }
 
 /* Recharts styling override */
 .recharts-default-tooltip {
-  background-color: #F7F3EE !important;
-  border: 1px solid rgba(26, 26, 26, 0.1) !important;
+  background-color: #F8F4EE !important;
+  border: 1px solid #E6DED5 !important;
   border-radius: 8px !important;
   box-shadow: 0 4px 20px rgba(0,0,0,0.05) !important;
   font-family: var(--font-body) !important;

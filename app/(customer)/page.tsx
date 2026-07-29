@@ -178,7 +178,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── Story Preview Section ─── */}
-      <section className="py-24 bg-ivory-light border-b border-charcoal/5">
+      <section className="py-24 bg-[#F3EEE7] border-b border-[#E6DED5]">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -186,22 +186,22 @@ export default function HomePage() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8"
         >
-          <div className="inline-flex items-center justify-center p-3.5 bg-blush-subtle/60 rounded-full text-blush mb-2 shadow-soft">
+          <div className="inline-flex items-center justify-center p-3.5 bg-[#F8ECEC] rounded-full text-[#D89B9B] mb-2 shadow-soft">
             <Heart className="w-6 h-6 fill-current" />
           </div>
-          <h2 className="font-heading text-display-md text-charcoal font-semibold">
+          <h2 className="font-heading text-display-md text-[#1E2B52] font-semibold">
             {storyPreview.heading}
           </h2>
-          <p className="font-heading text-xl md:text-2xl font-light italic text-charcoal-light max-w-2xl mx-auto leading-relaxed">
+          <p className="font-heading text-xl md:text-2xl font-light italic text-[#4A4A4A] max-w-2xl mx-auto leading-relaxed">
             &ldquo;Would we proudly choose this for our own family?&rdquo;
           </p>
-          <p className="text-base text-charcoal-muted leading-relaxed font-light max-w-3xl mx-auto">
+          <p className="text-base text-[#4A4A4A] leading-relaxed font-light max-w-3xl mx-auto">
             {storyPreview.body}
           </p>
           <div className="pt-4">
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-navy hover:text-blush transition-colors pb-1 border-b-2 border-navy hover:border-blush"
+              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-[#1E2B52] hover:text-[#D89B9B] transition-colors pb-1 border-b-2 border-[#1E2B52] hover:border-[#D89B9B]"
             >
               <span>{storyPreview.ctaLabel}</span>
               <ChevronRight className="w-4 h-4" />
@@ -211,20 +211,20 @@ export default function HomePage() {
       </section>
 
       {/* ─── Featured Collections Section ─── */}
-      <section className="py-24 bg-ivory">
+      <section className="py-24 bg-[#F8F4EE]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div className="space-y-2">
-              <span className="text-xs uppercase tracking-widest text-blush font-semibold">
+              <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-semibold">
                 Our Showcase
               </span>
-              <h2 className="font-heading text-display-md text-charcoal font-semibold">
+              <h2 className="font-heading text-display-md text-[#1E2B52] font-semibold">
                 Featured Categories
               </h2>
             </div>
             <Link
               href="/collections"
-              className="text-sm font-semibold tracking-wider uppercase text-navy hover:text-blush transition-colors flex items-center gap-1.5"
+              className="text-sm font-semibold tracking-wider uppercase text-[#1E2B52] hover:text-[#D89B9B] transition-colors flex items-center gap-1.5"
             >
               <span>Browse All Products</span>
               <ArrowRight className="w-4 h-4" />
@@ -232,22 +232,22 @@ export default function HomePage() {
           </div>
 
           {categories.length === 1 ? (
-            <div className="relative overflow-hidden rounded-2xl border border-charcoal/5 shadow-soft bg-ivory-light grid grid-cols-1 md:grid-cols-2 min-h-[50vh]">
+            <div className="relative overflow-hidden rounded-2xl border border-[#E6DED5] shadow-soft bg-white grid grid-cols-1 md:grid-cols-2 min-h-[50vh]">
               {/* Left Side: Editorial Description */}
               <div className="p-8 md:p-16 flex flex-col justify-center space-y-6">
-                <span className="text-xs uppercase tracking-widest text-blush font-bold bg-blush-subtle px-3 py-1.5 rounded-full self-start">
+                <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-bold bg-[#F8ECEC] px-3.5 py-1.5 rounded-full self-start border border-[#D89B9B]/20">
                   Debut Collection
                 </span>
-                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-navy leading-tight">
+                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1E2B52] leading-tight">
                   {categories[0].name}
                 </h3>
-                <p className="text-sm text-charcoal-muted leading-relaxed font-light">
+                <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
                   {categories[0].description || "Indulge in our carefully selected premium comfort wear. Designed to bring ease, style, and absolute confidence to your daily life. Crafted with organic materials, beautiful floral motifs, and family integrity."}
                 </p>
                 <div>
                   <Link
                     href={`/collections?c=${categories[0].slug}`}
-                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-navy text-ivory hover:bg-navy-light rounded-md text-xs font-semibold tracking-widest uppercase transition-colors shadow-navy"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1E2B52] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
                   >
                     <span>Explore Products</span>
                     <ArrowRight className="w-4.5 h-4.5" />
@@ -265,7 +265,7 @@ export default function HomePage() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
-                <div className="absolute inset-0 bg-charcoal/5 group-hover:bg-charcoal/10 transition-colors" />
+                <div className="absolute inset-0 bg-[#1E2B52]/5 group-hover:bg-[#1E2B52]/10 transition-colors" />
               </Link>
             </div>
           ) : categories.length > 1 ? (
@@ -274,7 +274,7 @@ export default function HomePage() {
                 <Link
                   key={category.id}
                   href={`/collections?c=${category.slug}`}
-                  className="group relative aspect-[4/5] bg-charcoal/5 rounded-lg overflow-hidden border border-charcoal/5 shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1"
+                  className="group relative aspect-[4/5] bg-white rounded-xl overflow-hidden border border-[#E6DED5] shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1.5"
                 >
                   {category.imageUrl ? (
                     <Image
@@ -285,14 +285,14 @@ export default function HomePage() {
                       className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-gradient-to-tr from-ivory-dark to-blush-subtle/20 flex flex-col items-center justify-center p-6 text-center" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-[#EFE7DE] to-[#F8ECEC] flex flex-col items-center justify-center p-6 text-center" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/20 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end text-ivory">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1E2B52]/80 via-[#1E2B52]/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end text-white">
                     <h3 className="font-heading text-xl font-medium tracking-wide">
                       {category.name}
                     </h3>
-                    <p className="text-xs text-ivory-dark/80 mt-1 flex items-center gap-1.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
+                    <p className="text-xs text-white/80 mt-1 flex items-center gap-1.5 translate-y-2 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300">
                       <span>Explore Collection</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </p>
@@ -302,22 +302,22 @@ export default function HomePage() {
             </div>
           ) : (
             /* Fallback default categories when database is not set */
-            <div className="relative overflow-hidden rounded-2xl border border-charcoal/5 shadow-soft bg-ivory-light grid grid-cols-1 md:grid-cols-2 min-h-[50vh]">
+            <div className="relative overflow-hidden rounded-2xl border border-[#E6DED5] shadow-soft bg-white grid grid-cols-1 md:grid-cols-2 min-h-[50vh]">
               {/* Left Side: Editorial Description */}
               <div className="p-8 md:p-16 flex flex-col justify-center space-y-6">
-                <span className="text-xs uppercase tracking-widest text-blush font-bold bg-blush-subtle px-3 py-1.5 rounded-full self-start">
+                <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-bold bg-[#F8ECEC] px-3.5 py-1.5 rounded-full self-start border border-[#D89B9B]/20">
                   Featured Collection
                 </span>
-                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-navy leading-tight">
+                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1E2B52] leading-tight">
                   Premium Floral Nightwear
                 </h3>
-                <p className="text-sm text-charcoal-muted leading-relaxed font-light">
+                <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
                   Indulge in our carefully selected premium comfort wear. Designed to bring ease, style, and absolute confidence to your daily life. Crafted with organic materials, beautiful floral motifs, and family integrity.
                 </p>
                 <div>
                   <Link
                     href="/collections?c=premium-floral-nightwear"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-navy text-ivory hover:bg-navy-light rounded-md text-xs font-semibold tracking-widest uppercase transition-colors shadow-navy"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1E2B52] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
                   >
                     <span>Explore Collection</span>
                     <ArrowRight className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function HomePage() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
-                <div className="absolute inset-0 bg-charcoal/5 group-hover:bg-charcoal/10 transition-colors" />
+                <div className="absolute inset-0 bg-[#1E2B52]/5 group-hover:bg-[#1E2B52]/10 transition-colors" />
               </Link>
             </div>
           )}
@@ -343,8 +343,8 @@ export default function HomePage() {
       </section>
 
       {/* ─── Brand Values Section ─── */}
-      <section className="py-24 bg-ivory">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-12">
+      <section className="py-24 bg-[#EFE7DE] border-t border-[#E6DED5]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
           {brandValues.map((value, idx) => {
             const Icon =
               value.icon === "Sparkles"
@@ -354,18 +354,22 @@ export default function HomePage() {
                 : ShieldCheck;
 
             return (
-              <div
+              <motion.div
                 key={idx}
-                className="flex flex-col items-center text-center p-6 space-y-4 bg-ivory-light border border-charcoal/5 rounded-xl shadow-soft"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: idx * 0.1, ease: [0.16, 1, 0.3, 1] }}
+                className="flex flex-col items-center text-center p-8 space-y-4 bg-white border border-[#E6DED5] rounded-2xl shadow-soft hover:shadow-card transition-all duration-500 hover:-translate-y-1"
               >
-                <div className="p-4 bg-blush-subtle/50 rounded-full text-blush">
+                <div className="p-4 bg-[#F8ECEC] rounded-full text-[#D89B9B] shadow-soft">
                   <Icon className="w-6 h-6 stroke-[1.8]" />
                 </div>
-                <h3 className="font-heading text-xl font-medium text-charcoal">{value.title}</h3>
-                <p className="text-sm text-charcoal-muted leading-relaxed font-light">
+                <h3 className="font-heading text-xl font-medium text-[#1E2B52]">{value.title}</h3>
+                <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
                   {value.body}
                 </p>
-              </div>
+              </motion.div>
             );
           })}
         </div>

@@ -85,12 +85,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const discountPercent = hasDiscount ? getDiscountPercent(product.price, product.discountPrice!) : 0;
 
   return (
-    <div className="group relative flex flex-col bg-ivory-light border border-charcoal/10 hover:border-blush/40 rounded-xl overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 ease-out hover:-translate-y-1.5">
+    <div className="group relative flex flex-col bg-white border border-[#E6DED5] hover:border-[#D89B9B] rounded-xl overflow-hidden shadow-soft hover:shadow-card transition-all duration-500 ease-out hover:-translate-y-1.5">
       {/* Product Image Section */}
-      <Link href={`/products/${product.slug}`} className="relative aspect-3/4 w-full overflow-hidden bg-charcoal/5">
+      <Link href={`/products/${product.slug}`} className="relative aspect-3/4 w-full overflow-hidden bg-[#F3EEE7]">
         {/* Discount Badge */}
         {hasDiscount && (
-          <span className="absolute top-4 left-4 z-10 bg-blush text-ivory text-[11px] font-bold px-3 py-1 rounded-full shadow-soft tracking-widest uppercase border border-white/20">
+          <span className="absolute top-4 left-4 z-10 bg-[#D89B9B] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow-soft tracking-widest uppercase border border-white/20">
             {discountPercent}% OFF
           </span>
         )}
@@ -100,8 +100,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           onClick={handleWishlistClick}
           className={`absolute top-4 right-4 z-10 p-2.5 rounded-full border transition-all duration-300 shadow-soft active:scale-75 ${
             isWishlisted
-              ? "bg-blush border-blush text-ivory scale-110"
-              : "bg-ivory/90 border-charcoal/10 text-charcoal hover:bg-blush hover:text-ivory hover:border-blush"
+              ? "bg-[#D89B9B] border-[#D89B9B] text-white scale-110"
+              : "bg-[#F8F4EE]/90 border-[#E6DED5] text-[#1E2B52] hover:bg-[#D89B9B] hover:text-white hover:border-[#D89B9B]"
           }`}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
