@@ -101,7 +101,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           className={`absolute top-4 right-4 z-10 p-2.5 rounded-full border transition-all duration-300 shadow-soft active:scale-75 ${
             isWishlisted
               ? "bg-[#D89B9B] border-[#D89B9B] text-white scale-110"
-              : "bg-[#F8F4EE]/90 border-[#E6DED5] text-[#1E2B52] hover:bg-[#D89B9B] hover:text-white hover:border-[#D89B9B]"
+              : "bg-[#F8F4EE]/90 border-[#E6DED5] text-[#1A1A1A] hover:bg-[#D89B9B] hover:text-white hover:border-[#D89B9B]"
           }`}
           aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
         >
@@ -202,3 +202,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
     </div>
   );
 };
+

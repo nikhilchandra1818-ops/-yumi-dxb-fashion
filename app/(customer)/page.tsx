@@ -189,7 +189,7 @@ export default function HomePage() {
           <div className="inline-flex items-center justify-center p-3.5 bg-[#F8ECEC] rounded-full text-[#D89B9B] mb-2 shadow-soft">
             <Heart className="w-6 h-6 fill-current" />
           </div>
-          <h2 className="font-heading text-display-md text-[#1E2B52] font-semibold">
+          <h2 className="font-heading text-display-md text-[#1A1A1A] font-semibold">
             {storyPreview.heading}
           </h2>
           <p className="font-heading text-xl md:text-2xl font-light italic text-[#4A4A4A] max-w-2xl mx-auto leading-relaxed">
@@ -201,7 +201,7 @@ export default function HomePage() {
           <div className="pt-4">
             <Link
               href="/about"
-              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-[#1E2B52] hover:text-[#D89B9B] transition-colors pb-1 border-b-2 border-[#1E2B52] hover:border-[#D89B9B]"
+              className="inline-flex items-center gap-2 text-xs font-bold tracking-widest uppercase text-[#1A1A1A] hover:text-[#D89B9B] transition-colors pb-1 border-b-2 border-[#1A1A1A] hover:border-[#D89B9B]"
             >
               <span>{storyPreview.ctaLabel}</span>
               <ChevronRight className="w-4 h-4" />
@@ -218,13 +218,13 @@ export default function HomePage() {
               <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-semibold">
                 Our Showcase
               </span>
-              <h2 className="font-heading text-display-md text-[#1E2B52] font-semibold">
+              <h2 className="font-heading text-display-md text-[#1A1A1A] font-semibold">
                 Featured Categories
               </h2>
             </div>
             <Link
               href="/collections"
-              className="text-sm font-semibold tracking-wider uppercase text-[#1E2B52] hover:text-[#D89B9B] transition-colors flex items-center gap-1.5"
+              className="text-sm font-semibold tracking-wider uppercase text-[#1A1A1A] hover:text-[#D89B9B] transition-colors flex items-center gap-1.5"
             >
               <span>Browse All Products</span>
               <ArrowRight className="w-4 h-4" />
@@ -238,7 +238,7 @@ export default function HomePage() {
                 <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-bold bg-[#F8ECEC] px-3.5 py-1.5 rounded-full self-start border border-[#D89B9B]/20">
                   Debut Collection
                 </span>
-                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1E2B52] leading-tight">
+                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1A1A1A] leading-tight">
                   {categories[0].name}
                 </h3>
                 <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
@@ -247,7 +247,7 @@ export default function HomePage() {
                 <div>
                   <Link
                     href={`/collections?c=${categories[0].slug}`}
-                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1E2B52] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1A1A1A] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
                   >
                     <span>Explore Products</span>
                     <ArrowRight className="w-4.5 h-4.5" />
@@ -265,7 +265,7 @@ export default function HomePage() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
-                <div className="absolute inset-0 bg-[#1E2B52]/5 group-hover:bg-[#1E2B52]/10 transition-colors" />
+                <div className="absolute inset-0 bg-[#1A1A1A]/5 group-hover:bg-[#1A1A1A]/10 transition-colors" />
               </Link>
             </div>
           ) : categories.length > 1 ? (
@@ -287,7 +287,7 @@ export default function HomePage() {
                   ) : (
                     <div className="absolute inset-0 bg-gradient-to-tr from-[#EFE7DE] to-[#F8ECEC] flex flex-col items-center justify-center p-6 text-center" />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1E2B52]/80 via-[#1E2B52]/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1A1A1A]/80 via-[#1A1A1A]/20 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-6 flex flex-col justify-end text-white">
                     <h3 className="font-heading text-xl font-medium tracking-wide">
                       {category.name}
@@ -308,7 +308,7 @@ export default function HomePage() {
                 <span className="text-xs uppercase tracking-widest text-[#D89B9B] font-bold bg-[#F8ECEC] px-3.5 py-1.5 rounded-full self-start border border-[#D89B9B]/20">
                   Featured Collection
                 </span>
-                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1E2B52] leading-tight">
+                <h3 className="font-heading text-3xl md:text-5xl font-semibold text-[#1A1A1A] leading-tight">
                   Premium Floral Nightwear
                 </h3>
                 <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
@@ -317,7 +317,7 @@ export default function HomePage() {
                 <div>
                   <Link
                     href="/collections?c=premium-floral-nightwear"
-                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1E2B52] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
+                    className="inline-flex items-center gap-2 px-8 py-3.5 bg-[#1A1A1A] text-white hover:bg-[#2D3D60] rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-300 shadow-navy active:scale-[0.98]"
                   >
                     <span>Explore Collection</span>
                     <ArrowRight className="w-4 h-4" />
@@ -335,7 +335,7 @@ export default function HomePage() {
                   sizes="(max-width: 768px) 100vw, 50vw"
                   priority
                 />
-                <div className="absolute inset-0 bg-[#1E2B52]/5 group-hover:bg-[#1E2B52]/10 transition-colors" />
+                <div className="absolute inset-0 bg-[#1A1A1A]/5 group-hover:bg-[#1A1A1A]/10 transition-colors" />
               </Link>
             </div>
           )}
@@ -365,7 +365,7 @@ export default function HomePage() {
                 <div className="p-4 bg-[#F8ECEC] rounded-full text-[#D89B9B] shadow-soft">
                   <Icon className="w-6 h-6 stroke-[1.8]" />
                 </div>
-                <h3 className="font-heading text-xl font-medium text-[#1E2B52]">{value.title}</h3>
+                <h3 className="font-heading text-xl font-medium text-[#1A1A1A]">{value.title}</h3>
                 <p className="text-sm text-[#4A4A4A] leading-relaxed font-light">
                   {value.body}
                 </p>

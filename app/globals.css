@@ -7,8 +7,8 @@
   --color-ivory-dark: #EFE7DE;       /* Section Background */
   --color-card-bg: #FFFFFF;          /* Card Containers */
   
-  --color-navy: #1E2B52;             /* Primary Text & Main Actions */
-  --color-charcoal: #1E2B52;         /* Primary Text */
+  --color-navy: #1A1A1A;             /* Primary Text & Main Actions */
+  --color-charcoal: #1A1A1A;         /* Primary Text */
   --color-charcoal-muted: #4A4A4A;   /* Secondary Text */
   --color-charcoal-subtle: #7A7A7A;  /* Subtle Muted Text */
 
@@ -25,11 +25,11 @@
   --font-body: var(--font-inter), system-ui, sans-serif;
 
   /* Elevated Shadows */
-  --shadow-soft: 0 4px 20px rgba(30, 43, 82, 0.03), 0 1px 3px rgba(0, 0, 0, 0.02);
-  --shadow-card: 0 8px 30px rgba(30, 43, 82, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
-  --shadow-elevated: 0 16px 50px rgba(30, 43, 82, 0.10), 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-soft: 0 4px 20px rgba(26, 26, 26, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+  --shadow-card: 0 8px 30px rgba(26, 26, 26, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-elevated: 0 16px 50px rgba(26, 26, 26, 0.12), 0 4px 16px rgba(0, 0, 0, 0.05);
   --shadow-blush: 0 8px 30px rgba(216, 155, 155, 0.25);
-  --shadow-navy: 0 8px 30px rgba(30, 43, 82, 0.25);
+  --shadow-navy: 0 8px 30px rgba(26, 26, 26, 0.28);
 
   /* Cinematic Motion Easing */
   --transition-luxury: cubic-bezier(0.16, 1, 0.3, 1);
@@ -37,7 +37,7 @@
 
 :root {
   --background: #F8F4EE;
-  --foreground: #1E2B52;
+  --foreground: #1A1A1A;
 }
 
 body {

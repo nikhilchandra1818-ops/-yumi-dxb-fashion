@@ -29,9 +29,9 @@ const config: Config = {
           subtle: "#F0DADA",
         },
         navy: {
-          DEFAULT: "#1F2A44",
-          light: "#2D3D60",
-          dark: "#141C2E",
+          DEFAULT: "#1A1A1A",
+          light: "#2A2A2A",
+          dark: "#111111",
         },
       },
       fontFamily: {
