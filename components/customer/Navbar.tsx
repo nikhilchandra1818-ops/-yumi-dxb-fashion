@@ -83,11 +83,12 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-500 ease-out ${
+        className={`fixed top-0 left-0 right-0 z-40 transition-all duration-700 ${
           isScrolled
-            ? "glassmorphism py-2 shadow-soft"
-            : "bg-ivory/95 backdrop-blur-md py-3.5 border-b border-charcoal/10"
+            ? "glassmorphism py-3"
+            : "py-5"
         }`}
+        style={!isScrolled ? { background: "transparent" } : undefined}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
           {/* Left: Hamburger menu for mobile */}
@@ -112,11 +113,16 @@ export const Navbar: React.FC = () => {
               <Link
                 key={link.label}
                 href={link.href}
-                className={`font-body text-xs font-semibold tracking-widest uppercase transition-all duration-300 luxury-link ${
+                className={`link-reveal font-body text-xs font-semibold tracking-[0.14em] uppercase transition-colors duration-300 ${
                   pathname === link.href
-                    ? "text-blush font-bold"
-                    : "text-charcoal/80 hover:text-blush"
+                    ? ""
+                    : ""
                 }`}
+                style={{
+                  color: isScrolled
+                    ? (pathname === link.href ? "#D89B9B" : "#1E2B52")
+                    : (pathname === link.href ? "#D89B9B" : "rgba(248,244,238,0.85)"),
+                }}
               >
                 {link.label}
               </Link>
@@ -124,7 +130,12 @@ export const Navbar: React.FC = () => {
             {isAdmin && (
               <Link
                 href="/admin/dashboard"
-                className="font-body text-xs font-bold tracking-widest uppercase text-navy hover:text-blush transition-colors px-3 py-1 bg-navy/5 hover:bg-navy/10 rounded-full border border-navy/20"
+                className="font-body text-xs font-bold tracking-[0.14em] uppercase px-3 py-1.5 transition-all duration-300"
+                style={{
+                  color: isScrolled ? "#F8F4EE" : "#1E2B52",
+                  background: isScrolled ? "#1E2B52" : "rgba(248,244,238,0.9)",
+                  borderRadius: "2px",
+                }}
               >
                 Admin Panel
               </Link>
@@ -132,11 +143,12 @@ export const Navbar: React.FC = () => {
           </nav>
 
           {/* Right: Actions */}
-          <div className="flex items-center space-x-1 sm:space-x-3">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             {/* Search Icon */}
             <button
               onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10"
+              className="p-2.5 transition-all duration-300 hover:scale-110 active:scale-95 rounded-full"
+              style={{ color: isScrolled ? "#1E2B52" : "rgba(248,244,238,0.9)" }}
               aria-label="Search"
             >
               <Search className="w-5 h-5" />
@@ -145,7 +157,8 @@ export const Navbar: React.FC = () => {
             {/* Account Icon */}
             <Link
               href={user ? (isAdmin ? "/admin/dashboard" : "/account") : "/login"}
-              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10"
+              className="p-2.5 transition-all duration-300 hover:scale-110 active:scale-95 rounded-full"
+              style={{ color: isScrolled ? "#1E2B52" : "rgba(248,244,238,0.9)" }}
               aria-label="Account"
             >
               <UserIcon className="w-5 h-5" />
@@ -154,24 +167,32 @@ export const Navbar: React.FC = () => {
             {/* Wishlist Icon */}
             <Link
               href="/wishlist"
-              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10 relative"
+              className="p-2.5 transition-all duration-300 hover:scale-110 active:scale-95 rounded-full relative"
+              style={{ color: isScrolled ? "#1E2B52" : "rgba(248,244,238,0.9)" }}
               aria-label="Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlistItems.length > 0 && (
-                <span className="absolute top-2 right-2 w-2.5 h-2.5 bg-blush rounded-full ring-2 ring-ivory animate-pulse" />
+                <span
+                  className="absolute top-2 right-2 w-2.5 h-2.5 rounded-full ring-2 ring-[#F8F4EE] animate-pulse"
+                  style={{ background: "#D89B9B" }}
+                />
               )}
             </Link>
 
             {/* Cart Icon */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="p-2.5 text-charcoal hover:text-blush transition-all duration-300 hover:scale-110 active:scale-95 rounded-full hover:bg-blush/10 relative"
+              className="p-2.5 transition-all duration-300 hover:scale-110 active:scale-95 rounded-full relative"
+              style={{ color: isScrolled ? "#1E2B52" : "rgba(248,244,238,0.9)" }}
               aria-label="Cart"
             >
               <ShoppingBag className="w-5 h-5" />
               {cartTotalItems > 0 && (
-                <span className="absolute top-1.5 right-1.5 w-4.5 h-4.5 bg-navy text-ivory text-[10px] font-bold rounded-full flex items-center justify-center shadow-soft">
+                <span
+                  className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] text-[10px] font-bold rounded-full flex items-center justify-center px-0.5"
+                  style={{ background: "#1E2B52", color: "#F8F4EE" }}
+                >
                   {cartTotalItems}
                 </span>
               )}
